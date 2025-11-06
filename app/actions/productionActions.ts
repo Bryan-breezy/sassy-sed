@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { getSession } from '@/lib/session'
-import { supabaseAdmin } from '@/lib/supabase-client'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function deleteProduct(productId: string) {
   try {
