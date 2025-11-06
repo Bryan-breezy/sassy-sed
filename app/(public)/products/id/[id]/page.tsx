@@ -17,8 +17,9 @@ interface Props {
 
 // --- The Main Page Component ---
 export default async function ProductDetailPage({ params }: Props) {
+  const { id } = await params
   const [product, allProducts] = await Promise.all([
-    getProductById(await params.id),
+    getProductById(id),
     getAllProducts()
   ])
 
