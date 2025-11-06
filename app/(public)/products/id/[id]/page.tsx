@@ -12,15 +12,13 @@ import { Badge } from "@/components/ui/badge"
 import { ChevronLeft } from "lucide-react"
 
 interface Props {
-  params: {
-    id: string
-  }
+  params: Promise<{id: string}>
 }
 
 // --- The Main Page Component ---
 export default async function ProductDetailPage({ params }: Props) {
   const [product, allProducts] = await Promise.all([
-    getProductById(params.id),
+    getProductById(await params.id),
     getAllProducts()
   ])
 
