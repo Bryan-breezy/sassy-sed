@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  image       String
+  brand       String
+  category    String
+  subcategory String?
+  concerns    String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  authorId    String
+  sizes       String[]
+  featured    Boolean  @default(false)
+  author      User     @relation(fields: [authorId], references: [id])
+  description String?
+}
+
+model User {
+  name         String    @unique
+  role         Role      @default(EDITOR)
+  passwordHash String
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  media        Media[]
+  products     Product[]
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  name      String
+  url       String   @unique
+  size      Int
+  type      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}

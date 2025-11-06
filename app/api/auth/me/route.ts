@@ -1,0 +1,17 @@
+import { NextResponse } from 'next/server'
+import { getSession } from '@/lib/session'
+
+export async function GET() {
+  try {
+    const session = await getSession()
+
+    if (!session.user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    return NextResponse.json({ user: session.user }, { status: 200 })
+  } catch (error) {
+    console.error('Session check error:', error)
+    return NextResponse.json({ error: 'Failed to check session' }, { status: 500 })
+  }
+}
