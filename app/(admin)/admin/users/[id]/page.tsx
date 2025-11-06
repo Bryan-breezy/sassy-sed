@@ -3,13 +3,12 @@ import { UserForm } from "@/components/admin/user-form"
 import { getUserById } from "@/lib/data"
 import type { Role } from "@/lib/auth" 
 
-// Define the Props interface for clarity
 interface EditUserPageProps {
-  params: { id: string } 
+  params: Promise<{ id: string }>
 }
 
 export default async function EditUserPage({ params }: EditUserPageProps) {
-  const { id } = params
+  const { id } = await params
 
   const dbUser = await getUserById(id)
 
