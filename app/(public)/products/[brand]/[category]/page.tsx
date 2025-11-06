@@ -6,13 +6,13 @@ import { getFilteredProducts } from "@/lib/data"
 
 // FIX 1: Correct the interface to expect a plain object, not a Promise.
 interface BrandCategoryPageProps {
-  params: { brand: string; category: string } 
+  params: Promise<{ brand: string; category: string }> 
 }
 
 // --- The Main Page Component ---
 // FIX 2: Destructure params directly without awaiting.
 export default async function BrandCategoryPage({ params }: BrandCategoryPageProps) { 
-  const { brand, category } = params
+  const { brand, category } = await params
   
   function capitalizeWords(text: string): string {
     return text
