@@ -56,7 +56,7 @@ export default async function CategoriesPage() {
 
   const categoryImages: Record<string, string> = {
     "Sedoso": getImageUrl("1758704519280-0.webp"),
-    "Dr. Mehos": getImageUrl("1758704507883-png.webp"),
+    "Dr Mehos": getImageUrl("1758704507883-png.webp"),
     "Saa": getImageUrl("1758704514259-saa__1_.webp"),
   }
 
@@ -66,14 +66,14 @@ export default async function CategoriesPage() {
       {/* Categories Grid */}
       <section className="py-8 px-4 bg-white">
         <div className="container mx-auto">
-<div className="text-center mb-8 lg:mb-10 px-4">
-  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
-    Our Product Categories
-  </h1>
-  <p className="text-base sm:text-lg text-gray-600 max-w-md mx-auto">
-    Handcrafted with care, designed for you.
-  </p>
-</div>
+          <div className="text-center mb-8 lg:mb-10 px-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
+              Our Product Categories
+            </h1>
+            <p className="text-base sm:text-lg text-gray-600 max-w-md mx-auto">
+              Handcrafted with care, designed for you.
+            </p>
+          </div>
           <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-8">
             {categories.map((category, index) => (
               <Card 
