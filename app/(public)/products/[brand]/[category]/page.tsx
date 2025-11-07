@@ -12,16 +12,15 @@ interface BrandCategoryPageProps {
 export default async function BrandCategoryPage({ params }: BrandCategoryPageProps) { 
   const { brand, category } = await params
   
-  function capitalizeWords(text: string): string {
-    return text
-      .trim()
-      .split(/\s+/) // split on any space
-      .map(word => {
-        if (word.length === 0) return word
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-      })
-      .join(" ")
-  }
+  function capitalizeWords(text: string): string {
+    return text
+        .trim()
+        .split(/[\s-]+/) // split on spaces AND hyphens
+        .map(word => {
+        if (word.length === 0) return word
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        })
+        .join(" ")
 
   const brandName = capitalizeWords(brand)
   const categoryName = capitalizeWords(category)
