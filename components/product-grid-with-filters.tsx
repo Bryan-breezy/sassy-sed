@@ -92,18 +92,24 @@ export function ProductGridWithFilters({
   )
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
 
-  // previous page
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [currentPage])
+
   const handlePrevious = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1))
   }
 
-  //next page
   const handleNext = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages))
   }
-  
+
   const handlePageClick = (pageNumber: number) => {
     setCurrentPage(pageNumber)
+  }
+
+  const handleBackToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
