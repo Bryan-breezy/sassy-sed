@@ -22,7 +22,7 @@ export default async function LatestProductsSection({
       )
     }
 
-    const latestProducts = allProducts.filter(p => p.brand === "Dr. Mehos")
+    const latestProducts = allProducts.filter(p => p.brand === "Dr Mehos")
 
     const productsWithUrls = latestProducts.map(product => ({
       ...product,
