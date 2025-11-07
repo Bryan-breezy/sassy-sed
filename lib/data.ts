@@ -91,7 +91,7 @@ export async function getFilteredProducts(filters: { category?: string, brand?: 
 
     // Apply filters
     if (filters.category) {
-      query = query.ilike('brand', `%${filters.category.trim()}%`)
+      query = query.ilike('category', `%${filters.category.trim()}%`)
     }
 
     if (filters.brand) {
