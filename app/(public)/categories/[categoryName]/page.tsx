@@ -16,7 +16,7 @@ function slugToTitle(slug: string): string {
 
 export default async function CategoryPage({ params }: { params: Promise<{ categoryName: string }> }) {
   const { categoryName } = await params
-  const categorySlug = categoryName
+  const categorySlug = decodeURIComponent(categoryName)
   const displayCategoryName = slugToTitle(categorySlug)
 
   console.log("🧩 categorySlug received in page:", categorySlug)
