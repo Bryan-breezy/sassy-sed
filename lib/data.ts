@@ -92,7 +92,8 @@ export async function getFilteredProducts(filters: { category?: string, brand?: 
     }
 
     if (filters.brand) {
-      query = query.ilike('brand', `%${filters.brand.trim()}%`)
+      const searchBrand = filters.brand.trim().replace(/[-\s]+/g, '[-\s]+');
+      query = query.filter('brand', 'match', searchBrand);
     }
 
     const { data: products, error } = await query
