@@ -2,6 +2,26 @@ import { Product, User, UserForAdminList } from '@/types'
 import { supabase } from './supabase-client'
 import type { Role } from "@/lib/auth"
 
+function getSupabaseImageUrl(imagePath: string): string {
+  try {
+    // /uploads/img.jpeg -> uploads/img.jpeg
+    let cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath
+    const bucketName = process.env.NEXT_PUBLIC_BUCKET_NAME || "uploads"
+
+    if (cleanPath.startsWith('uploads/')) {
+      cleanPath = cleanPath.replace(/^uploads\//, '')
+    }
+
+    // getPublicUrl -> {data: {...}, ...
+    const { data: publicUrlData } = supabase.storage // renames data into publicUrlData
+      .from(bucketName) // Points to supabase bucket(uploads)
+      .getPublicUrl(cleanPath) //get public link to the bucket ie https://xy.supabase.co/storage/v1/object/public/uploads/curl.jpg
+
+    return publicUrlData.publicUrl
+  } catch (error) {
+    return imagePath // Fallback to original path
+  }
+}
 
 // Main products fetching function
 export async function getAllProducts(): Promise<Product[]> {
@@ -12,12 +32,14 @@ export async function getAllProducts(): Promise<Product[]> {
         *,
         User:authorId (name)
       `)
-      .order('createdAt', { ascending: false })
+      .order('category', { ascending: false })
 
     if (error) {
+      console.error("Supabase Error: Failed to fetch products.", error)
       return []
     }
 
+    // Process images - convert file paths to Supabase URLs
     const productsWithImageUrls = products?.map(product => { // products? -> only map if not null or undefined
       return {
         id: product.id,
@@ -76,32 +98,41 @@ export async function getProductById(id: string): Promise<Product | null> {
     }
 
   } catch (error) {
+    console.error("Error: Failed to fetch product by ID.", error)
     return null
   }
 }
 
 // Get filtered products
 export async function getFilteredProducts(filters: { category?: string, brand?: string }): Promise<Product[]> {
+  console.log('🔍 Filters received:', filters)
   try {
     let query = supabase
       .from('Product') 
       .select(`*`)
 
+    // Apply filters
     if (filters.category) {
+	    console.log('Filtering by category:',filters.category)
       query = query.ilike('category', `%${filters.category.trim()}%`)
     }
 
     if (filters.brand) {
-      const searchBrand = filters.brand.trim().replace(/[-\s]+/g, '[-\s]+');
-      query = query.filter('brand', 'match', searchBrand);
+      console.log('🏷️ Filtering by brand:', filters.brand)
+      query = query.ilike('brand', `%${filters.brand.trim()}%`)
     }
 
     const { data: products, error } = await query
+    console.log('📊 Query result:', { count: products?.length, error })
 
     if (error) {
+      console.error("Supabase Error: Failed to fetch filtered products", error)
       return []
     }
 
+    console.log(`✅ Found ${products?.length || 0} products`)
+
+    // Process images - convert file paths to Supabase URLs
     return products?.map(product => ({
       id: product.id,
       name: product.name,
@@ -132,7 +163,7 @@ export async function getUserById(id: string): Promise<User | null> {
       .single()
 
     if (error || !user) {
-
+      console.error("Supabase Error: Failed to fetch user.", error)
       return null
     }
 
@@ -145,20 +176,26 @@ export async function getUserById(id: string): Promise<User | null> {
     }
 
   } catch (error) {
+    console.error("Error: Failed to fetch user.", error)
     return null
   }
 }
 
 export async function getAllUsers(): Promise<UserForAdminList[]> {
   try {
+    console.log("Fetching all users from Supabase...")
+
     const { data: users, error } = await supabase
       .from('User')
       .select('id, name, role, createdAt')
       .order('name', { ascending: true })
 
     if (error) {
+      console.error("Supabase Error: Failed to fetch users.", error)
       return []
     }
+
+    console.log(`Fetched ${users?.length || 0} users.`)
 
     return users?.map(user => ({
       id: user.id,
@@ -168,6 +205,7 @@ export async function getAllUsers(): Promise<UserForAdminList[]> {
     })) || []
 
   } catch (error) {
+    console.error("Error: Failed to fetch users.", error)
     return []
   }
 }
@@ -184,9 +222,11 @@ export async function getProductsByBrand(brand: string): Promise<Product[]> {
       .order('name', { ascending: true })
 
     if (error) {
+      console.error("Supabase Error: Failed to fetch products by brand.", error)
       return []
     }
 
+    // Process images - convert file paths to Supabase URLs
     return products?.map(product => ({
       id: product.id,
       name: product.name,
@@ -203,6 +243,7 @@ export async function getProductsByBrand(brand: string): Promise<Product[]> {
     })) || []
 
   } catch (error) {
+    console.error("Error: Failed to fetch products by brand.", error)
     return []
   }
 }
@@ -210,7 +251,7 @@ export async function getProductsByBrand(brand: string): Promise<Product[]> {
 export async function getFeaturedProducts(): Promise<Product[]> {
   try {
     const { data: products, error } = await supabase
-      .from('Product')
+      .from('Product') // Your Product table
       .select(`
         *,
         User:authorId (name)
@@ -220,9 +261,11 @@ export async function getFeaturedProducts(): Promise<Product[]> {
       .limit(8)
 
     if (error) {
+      console.error("Supabase Error: Failed to fetch featured products.", error)
       return []
     }
 
+    // Process images - convert file paths to Supabase URLs
     return products?.map(product => ({
       id: product.id,
       name: product.name,
@@ -239,6 +282,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
     })) || []
 
   } catch (error) {
+    console.error("Error: Failed to fetch featured products.", error)
     return []
   }
 }
@@ -252,6 +296,7 @@ export async function getUniqueBrands(): Promise<string[]> {
       .not('brand', 'is', null)
 
     if (error) {
+      console.error("Supabase Error: Failed to fetch unique brands.", error)
       return []
     }
 
@@ -259,6 +304,7 @@ export async function getUniqueBrands(): Promise<string[]> {
     return brands.sort()
 
   } catch (error) {
+    console.error("Error: Failed to fetch unique brands.", error)
     return []
   }
 }
@@ -267,11 +313,12 @@ export async function getUniqueBrands(): Promise<string[]> {
 export async function getUniqueCategories(): Promise<string[]> {
   try {
     const { data: products, error } = await supabase
-      .from('Product')
+      .from('Product') // Your Product table
       .select('category')
       .not('category', 'is', null)
 
     if (error) {
+      console.error("Supabase Error: Failed to fetch unique categories.", error)
       return []
     }
 
@@ -279,6 +326,7 @@ export async function getUniqueCategories(): Promise<string[]> {
     return categories.sort()
 
   } catch (error) {
+    console.error("Error: Failed to fetch unique categories.", error)
     return []
   }
 }
