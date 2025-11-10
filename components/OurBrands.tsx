@@ -23,7 +23,7 @@ const defaultBrands: BrandCategory[] = [
   {
     name: "Dr Mehos",                                            
     image: getImageUrl("1758704507883-png.webp"),
-    href: "/categories/dr-mehos", 
+    href: "/categories/Dr Mehos", 
     description: "Clinical skincare solutions"
   },
   {
