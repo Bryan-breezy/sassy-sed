@@ -21,7 +21,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
   console.log("🧩 categorySlug received in page:", categorySlug)
 
-  const products = await getFilteredProducts({ category: categorySlug }); 
+  const products = await getFilteredProducts({ brand: categorySlug }); 
   
   return (
     <div className="min-h-screen bg-gray-50">
