@@ -32,8 +32,7 @@ export function ProductCard({ product, index, visibleSizes }: ProductCardProps) 
             <button 
               className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg hover:bg-white hover:scale-110 transition-all duration-200"
               onClick={(e) => {
-                e.preventDefault();
-                // Add to wishlist logic
+                e.preventDefault()
               }}
             >
             </button>
@@ -89,7 +88,7 @@ export function ProductCard({ product, index, visibleSizes }: ProductCardProps) 
                 variant="outline" 
                 className="text-xs px-2 py-1 border-gray-200 max-w-[120px] truncate"
               >
-                {product.brand}
+                {product.subcategory}
               </Badge>
             </div>
             
@@ -105,7 +104,7 @@ export function ProductCard({ product, index, visibleSizes }: ProductCardProps) 
             <div className="flex flex-col flex-1 min-w-0">
               {/* Brand name for mobile - compact */}
               <p className="text-xs text-green-600 font-medium truncate mb-1">
-                {product.brand}
+                {product.subcategory}
               </p>
               {/* Price or category for mobile */}
               <p className="text-xs text-gray-500 truncate">
