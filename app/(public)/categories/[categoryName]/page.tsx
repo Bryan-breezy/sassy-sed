@@ -8,7 +8,7 @@ function slugToTitle(slug: string): string {
       .replace(/[-_]+/g, ' ')           // Replace dashes/underscores with space
       .replace(/\s+/g, ' ')             // Collapse multiple spaces
       .trim()                           // Remove leading/trailing spaces
-      .replace(/\b\w/g, char => char.toUpperCase()); // Capitalize each word
+      .replace(/\b\w/g, char => char.toUpperCase()) // Capitalize each word
   } catch (e) {
     return slug.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
   }
@@ -18,8 +18,6 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
   const { categoryName } = await params
   const categorySlug = decodeURIComponent(categoryName)
   const displayCategoryName = slugToTitle(categorySlug)
-
-  console.log("🧩 categorySlug received in page:", categorySlug)
 
   const products = await getFilteredProducts({ brand: categorySlug }); 
   
@@ -43,5 +41,5 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
         />
       </main>
     </div>
-  );
+  )
 }
