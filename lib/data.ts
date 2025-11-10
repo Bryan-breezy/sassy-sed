@@ -18,7 +18,6 @@ export async function getAllProducts(): Promise<Product[]> {
       return []
     }
 
-    // Process images - convert file paths to Supabase URLs
     const productsWithImageUrls = products?.map(product => { // products? -> only map if not null or undefined
       return {
         id: product.id,
@@ -83,13 +82,11 @@ export async function getProductById(id: string): Promise<Product | null> {
 
 // Get filtered products
 export async function getFilteredProducts(filters: { category?: string, brand?: string }): Promise<Product[]> {
-  console.log('🔍 Filters received:', filters)
   try {
     let query = supabase
       .from('Product') 
       .select(`*`)
 
-    // Apply filters
     if (filters.category) {
       query = query.ilike('category', `%${filters.category.trim()}%`)
     }
@@ -104,7 +101,6 @@ export async function getFilteredProducts(filters: { category?: string, brand?: 
       return []
     }
 
-    // Process images - convert file paths to Supabase URLs
     return products?.map(product => ({
       id: product.id,
       name: product.name,
@@ -190,7 +186,6 @@ export async function getProductsByBrand(brand: string): Promise<Product[]> {
       return []
     }
 
-    // Process images - convert file paths to Supabase URLs
     return products?.map(product => ({
       id: product.id,
       name: product.name,
@@ -214,7 +209,7 @@ export async function getProductsByBrand(brand: string): Promise<Product[]> {
 export async function getFeaturedProducts(): Promise<Product[]> {
   try {
     const { data: products, error } = await supabase
-      .from('Product') // Your Product table
+      .from('Product')
       .select(`
         *,
         User:authorId (name)
@@ -227,7 +222,6 @@ export async function getFeaturedProducts(): Promise<Product[]> {
       return []
     }
 
-    // Process images - convert file paths to Supabase URLs
     return products?.map(product => ({
       id: product.id,
       name: product.name,
