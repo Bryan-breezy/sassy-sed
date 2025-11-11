@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-// Your UI Components
+// UI Components
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 import type { Product } from '@/types'
@@ -18,7 +18,7 @@ export function FullWidthProductGrid({ initialProducts, categoryName }: {
     if (searchTerm.trim() === '') return initialProducts
     
     return initialProducts.filter((product) =>
-      [product.name, product.category, product.brand]
+      [product.name, product.category, product.subcategory]
         .join(" ")
         .toLowerCase()
         .includes(searchTerm.toLowerCase())
