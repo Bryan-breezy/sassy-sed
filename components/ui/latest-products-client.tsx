@@ -137,24 +137,6 @@ export function LatestProductsClient({
             </div>
           </>
         )}
-
-        {/* Dot indicators for mobile */}
-        {products.length > 1 && (
-          <div className="flex justify-center mt-8 lg:hidden">
-            <div className="flex space-x-2">
-              {products.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToProduct(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === currentIndex ? 'bg-green-600 scale-125' : 'bg-gray-300'
-                  }`}
-                  aria-label={`Go to product ${index + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </section>
   )
