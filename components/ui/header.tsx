@@ -199,8 +199,8 @@ export function Header() {
               </NavigationMenu>
             </div>
 
-            {/* Hamburger Menu ( Hidden on large screen sizes) */}
-            <div className="lg:hidden">
+            {/* Hamburger Menu ( Visible on tablets, Hidden on phones and large screens) */}
+            <div className="hidden md:block lg:hidden">
               <Button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
                 variant="ghost" 
@@ -218,10 +218,10 @@ export function Header() {
         </div>
       </header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu (Visible on tablets only) */}
       <div 
         aria-hidden={!isMobileMenuOpen} 
-        className={`fixed inset-0 z-50 lg:hidden transition-opacity duration-500 ease-in-out ${
+        className={`fixed inset-0 z-50 hidden md:block lg:hidden transition-opacity duration-500 ease-in-out ${
              isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
