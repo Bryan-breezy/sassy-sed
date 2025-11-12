@@ -301,17 +301,6 @@ export default function ContactsPage() {
           </div>
         </div>
       </section>
-
-      {/* Back to Top Button */}
-      {showBackToTop && (
-        <Button
-          onClick={scrollToTop}
-          className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 h-12 w-12 rounded-full bg-green-600 hover:bg-green-700 text-white shadow-lg transition-opacity"
-          aria-label="Back to top"
-        >
-          <ArrowUp className="h-6 w-6" />
-        </Button>
-      )}
     </div>
   )
 }
