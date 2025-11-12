@@ -1,8 +1,9 @@
 import { Header } from "@/components/ui/header"
 import { Footer } from "@/components/ui/footer"
+import MobileBottomNav from '@/components/MobileBottomNav'
 
 export default function PublicLayout({
-  children,
+children,
 }: {
   children: React.ReactNode;
 }) {
@@ -12,9 +13,10 @@ export default function PublicLayout({
       
       <main>
         {children}
+        < MobileBottomNav />
       </main>
       
       <Footer />
     </>
-  );
+  )
 }
