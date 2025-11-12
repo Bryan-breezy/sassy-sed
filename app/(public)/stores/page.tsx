@@ -248,13 +248,6 @@ export default function StoresPage() {
           </Button>
         </div>
       </section>
-
-      {/* Back to Top Button */}
-      {showBackToTop && (
-        <Button onClick={scrollToTop} className="fixed bottom-8 right-8 h-12 w-12 rounded-full bg-green-600 hover:bg-green-700 text-white shadow-lg" aria-label="Back to top">
-          <ArrowUp className="h-6 w-6" />
-        </Button>
-      )}
     </div>
   )
 }
