@@ -1,7 +1,5 @@
 export const dynamic = "force-dynamic"
 
-import { BackToTopButton } from "@/components/ui/back-to-top-button"
-
 //components
 import { HeroSection } from '@/components/hero-section'
 import LatestProductsSection from "@/components/ui/latestProductsSection"
@@ -28,8 +26,6 @@ export default async function HomePage() {
         {/* Brands Section */}
         <OurBrands/>
       </main>
-
-      <BackToTopButton />
     </div>
   )
 }
