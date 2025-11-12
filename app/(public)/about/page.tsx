@@ -455,16 +455,6 @@ export default function AboutPage() {
         </div>
       </section>
       
-
-      {showBackToTop && (
-        <Button 
-          onClick={scrollToTop} 
-          className="fixed bottom-8 right-8 h-12 w-12 rounded-full bg-green-600 hover:bg-green-700 text-white shadow-lg z-50" 
-          aria-label="Back to top"
-        >
-          <ArrowUp className="h-6 w-6" />
-        </Button>
-      )}
     </div>
   );
 }
