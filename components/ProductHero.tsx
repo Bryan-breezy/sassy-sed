@@ -16,10 +16,6 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
-  const [typedName, setTypedName] = useState('')
-  const [typedDesc, setTypedDesc] = useState('')
-  const [showCursor, setShowCursor] = useState(true)
-  const [isTypingName, setIsTypingName] = useState(true)
 
   // Safe product access with fallback
   const product = products?.[currentIndex]
@@ -33,73 +29,10 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
     setCurrentIndex(i => i === 0 ? (products?.length ?? 1) - 1 : i - 1)
   }, [products?.length])
 
-  // Reset typing on product change
+  // Reset image loaded state on product change
   useEffect(() => {
-    if (!product) return
-    
     setIsImageLoaded(false)
-    setTypedName('')
-    setTypedDesc('')
-    setShowCursor(true)
-    setIsTypingName(true)
-  }, [currentIndex, product])
-
-  // Cursor blink effect
-  useEffect(() => {
-    const blinkInterval = setInterval(() => {
-      setShowCursor(prev => !prev)
-    }, 500)
-    
-    return () => clearInterval(blinkInterval)
-  }, [])
-
-  // Typing animation
-  useEffect(() => {
-    if (!isImageLoaded || !product) return
-
-    const nameText = product.name || ''
-    const descText = product.description || ''
-    let timeoutId: NodeJS.Timeout
-
-    const typeName = (index: number) => {
-      if (index < nameText.length) {
-        setTypedName(nameText.substring(0, index + 1))
-        timeoutId = setTimeout(() => typeName(index + 1), 80)
-      } else {
-        setIsTypingName(false)
-        timeoutId = setTimeout(() => typeDesc(0), 120)
-      }
-    }
-
-    const typeDesc = (index: number) => {
-      if (index < descText.length) {
-        setTypedDesc(descText.substring(0, index + 1))
-        timeoutId = setTimeout(() => typeDesc(index + 1), 25)
-      } else {
-        setShowCursor(false)
-      }
-    }
-
-    // Start typing animation
-    timeoutId = setTimeout(() => typeName(0), 200)
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-      }
-    }
-  }, [isImageLoaded, product])
-
-  // Auto-advance carousel (optional)
-  useEffect(() => {
-    if (!products || products.length <= 1) return
-    
-    const intervalId = setInterval(() => {
-      nextProduct()
-    }, 8000) // Change every 8 seconds
-
-    return () => clearInterval(intervalId)
-  }, [nextProduct, products])
+  }, [currentIndex])
 
   // Early return for empty products
   if (!products?.length) {
@@ -166,12 +99,9 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
           {/* Text Content */}
           <div className="space-y-6 lg:space-y-10 text-center lg:text-left text-white drop-shadow-xl order-1 lg:order-2">
-            {/* Name with typing animation */}
-            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight min-h-[1.2em]">
-              {typedName}
-              {isTypingName && showCursor && (
-                <span className="inline-block w-0.5 sm:w-1 h-12 sm:h-14 bg-white ml-1 animate-pulse align-middle" />
-              )}
+            {/* Name - immediately visible */}
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
+              {product.name}
             </h2>
 
             {/* Brand and Subcategory */}
@@ -183,15 +113,12 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
               </p>
             )}
 
-            {/* Description with typing animation */}
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-gray-100 max-w-3xl min-h-[1.5em]">
-              {typedDesc}
-              {!isTypingName && 
-               typedDesc.length < (product.description?.length || 0) && 
-               showCursor && (
-                <span className="inline-block w-0.5 sm:w-1 h-6 sm:h-8 bg-white ml-1 animate-pulse align-middle" />
-              )}
-            </p>
+            {/* Description - immediately visible */}
+            {product.description && (
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-gray-100 max-w-3xl">
+                {product.description}
+              </p>
+            )}
 
             {/* CTA Button */}
             <div className="pt-4 lg:pt-8">
