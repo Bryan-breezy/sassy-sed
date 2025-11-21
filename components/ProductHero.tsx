@@ -82,25 +82,27 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   }
 
   return (
-    <section className="relative min-h-screen flex items-center p-8 overflow-hidden text-black">
-      <div className="absolute inset-0 -z-10">
+    <section className="relative min-h-screen flex items-center p-8 overflow-hidden">
+      <div className="absolute inset-0 -z-20">
         <Image
           src={product.image}
           alt="background"
           fill
           priority
-          className="object-cover blur-2xl scale-110 opacity-30"
+          className="object-cover blur-2xl scale-110 opacity-50"
         />
       </div>
-
+      
+      <div className="absolute inset-0 bg-black/70 -z-10" />
+      
       {/* Background Title */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-10 text-white">
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 opacity-10 text-white">
         <h1 className="text-8xl md:text-9xl lg:text-[12rem] font-extralight uppercase tracking-widest">
           {title}
         </h1>
       </div>
 
-      <div className="container mx-auto max-w-7xl relative z-10">
+      <div className="container mx-auto max-w-7xl relative z-20">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
 
           {/* Product Image */}
@@ -176,7 +178,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
             <button
               onClick={nextProduct}
-              className="absolute right-8 top-1/2 -translate-y-1/2 p-5 bg-white/80 rounded-full shadow-2xl hover:scale-110 transition z-20"
+              className="absolute left-8 top-1/2 -translate-y-1/2 p-5 bg-white/80 rounded-full shadow-2xl hover:scale-110 transition z-20"
             >
               <ChevronRight className="w-10 h-10 text-black" />
             </button>
