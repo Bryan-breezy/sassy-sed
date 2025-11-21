@@ -37,7 +37,6 @@ export default async function FeaturedProducts() {
         <ProductHero 
           products={heroProducts}
           title="Featured"
-          autoSwitchInterval={5000}
         />
       )}
 
