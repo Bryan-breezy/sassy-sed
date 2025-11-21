@@ -74,8 +74,8 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
       <div className="container mx-auto max-w-7xl relative z-20">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-          {/* Product Image */}
-          <div className="flex justify-center order-2 lg:order-1">
+          {/* Product Image - On top for mobile */}
+          <div className="flex justify-center order-1">
             <div className="relative w-full max-w-2xl aspect-square rounded-3xl overflow-hidden shadow-2xl">
               {!isImageLoaded && (
                 <div className="absolute inset-0 bg-gray-800 animate-pulse rounded-3xl" />
@@ -94,8 +94,8 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
             </div>
           </div>
 
-          {/* Text Content */}
-          <div className="space-y-6 lg:space-y-10 text-center lg:text-left text-stone-400 drop-shadow-xl order-1 lg:order-2">
+          {/* Text Content - Below image for mobile */}
+          <div className="space-y-6 lg:space-y-10 text-center lg:text-left text-stone-400 drop-shadow-xl order-2">
             {/* Name - immediately visible */}
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
               {product.name}
