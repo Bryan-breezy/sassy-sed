@@ -18,140 +18,143 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   title,
   backgroundColor = "bg-white",
   textColor = "text-gray-900",
-  autoSwitchInterval = 5000
+  autoSwitchInterval = 6000
 }) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
-  const [displayedText, setDisplayedText] = useState<string>(''); // For typing effect
+
+  // Typing state
+  const [typedName, setTypedName] = useState<string>('');
+  const [typedDesc, setTypedDesc] = useState<string>('');
+  const [isTypingName, setIsTypingName] = useState<boolean>(true);
 
   const product = products[currentIndex];
 
-  // Reset displayed text when product changes
+  // Reset everything when product changes
   useEffect(() => {
-    setDisplayedText('');
     setIsImageLoaded(false);
+    setTypedName('');
+    setTypedDesc('');
+    setIsTypingName(true);
   }, [currentIndex]);
 
-  // Letter-by-letter typing animation
+  // Start typing animation when image loads
   useEffect(() => {
-    if (!product?.name || !isImageLoaded) return;
+    if (!isImageLoaded || !product) return;
 
-    let currentText = '';
-    const textToType = product.name;
-    let index = 0;
+    let nameIndex = 0;
+    let descIndex = 0;
+    const nameText = product.name || '';
+    const descText = product.description || '';
 
-    const timer = setInterval(() => {
-      currentText += textToType[index];
-      setDisplayedText(currentText);
-      index++;
+    // Type the name first
+    const nameTimer = setInterval(() => {
+      if (nameIndex < nameText.length) {
+        setTypedName(prev => prev + nameText[nameIndex]);
+        nameIndex++;
+      } else {
+        clearInterval(nameTimer);
+        setIsTypingName(false);
 
-      if (index >= textToType.length) {
-        clearInterval(timer);
+        // Then start typing the description
+        const descTimer = setInterval(() => {
+          if (descIndex < descText.length) {
+            setTypedDesc(prev => prev + descText[descIndex]);
+            descIndex++;
+          } else {
+            clearInterval(descTimer);
+          }
+        }, 30); // Description types faster
+
+        return () => clearInterval(descTimer);
       }
-    }, 60); // Adjust speed: lower = faster
+    }, 70); // Name typing speed
 
-    return () => clearInterval(timer);
-  }, [product?.name, isImageLoaded]);
+    return () => clearInterval(nameTimer);
+  }, [isImageLoaded, product]);
 
   // Auto-switch
   useEffect(() => {
     if (products.length <= 1) return;
-    const interval = setInterval(() => {
-      nextProduct();
-    }, autoSwitchInterval);
+    const interval = setInterval(nextProduct, autoSwitchInterval);
     return () => clearInterval(interval);
   }, [products.length, autoSwitchInterval, currentIndex]);
 
-  const nextProduct = () => {
-    if (products.length <= 1) return;
-    setCurrentIndex(prev => prev === products.length - 1 ? 0 : prev + 1);
-  };
+  const nextProduct = () => setCurrentIndex(prev => prev === products.length - 1 ? 0 : prev + 1);
+  const prevProduct = () => setCurrentIndex(prev => prev === 0 ? products.length - 1 : prev - 1);
+  const goToProduct = (i: number) => { if (i !== currentIndex) setCurrentIndex(i); };
 
-  const prevProduct = () => {
-    if (products.length <= 1) return;
-    setCurrentIndex(prev => prev === 0 ? products.length - 1 : prev - 1);
-  };
-
-  const goToProduct = (index: number) => {
-    if (index === currentIndex) return;
-    setCurrentIndex(index);
-  };
-
-  if (!products || products.length === 0) {
+  if (!products?.length) {
     return (
       <section className={`min-h-[60vh] flex items-center justify-center ${backgroundColor} p-8`}>
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-600">Error loading products</h2>
-          <p className="text-gray-500 mt-2">Please refresh the page</p>
-        </div>
+        <p className="text-2xl text-gray-500">No products found</p>
       </section>
     );
   }
 
   return (
     <section className={`relative min-h-[80vh] flex items-center ${backgroundColor} p-4 sm:p-8 overflow-hidden`}>
-      {/* Background Text Overlay */}
-      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center ${textColor} opacity-10 pointer-events-none z-0`}>
-        <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-extralight uppercase tracking-wider">
+      {/* Background Title */}
+      <div className={`absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-10 ${textColor}`}>
+        <h1 className="text-6xl sm:text-8xl lg:text-9xl font-extralight uppercase tracking-widest">
           {title}
         </h1>
       </div>
 
       <div className="container mx-auto max-w-7xl relative z-10">
-        <div className="flex flex-col lg:flex-row items-center gap-8 sm:gap-12 lg:gap-16">
-          {/* Left: Image */}
-          <div className="w-full lg:w-1/2 flex justify-center lg:justify-start">
-            <div className="relative w-full max-w-md sm:max-w-lg md:max-w-xl h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px] overflow-hidden rounded-lg shadow-2xl">
-              {!isImageLoaded && (
-                <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-lg" />
-              )}
+        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+
+          {/* Image */}
+          <div className="w-full lg:w-1/2 flex justify-center">
+            <div className="relative w-full max-w-2xl h-[500px] lg:h-[700px] rounded-2xl overflow-hidden shadow-2xl">
+              {!isImageLoaded && <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-2xl" />}
               <Image
                 src={product.image}
                 alt={product.name}
                 fill
-                onLoad={() => setIsImageLoaded(true)}
-                onError={() => setIsImageLoaded(true)}
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className={`object-contain object-center transition-all duration-700 ${
-                  isImageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-                } hover:scale-105`}
+                className={`object-contain transition-all duration-1000 ${isImageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} hover:scale-105`}
                 priority={currentIndex === 0}
+                onLoad={() => setIsImageLoaded(true)}
               />
             </div>
           </div>
 
-          {/* Right: Product Info */}
-          <div className={`w-full lg:w-1/2 text-center lg:text-left px-2 sm:px-4 transition-opacity duration-700 ${
-            isImageLoaded ? 'opacity-100' : 'opacity-0'
-          }`}>
-            {/* Typing Animation for Name */}
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-900 leading-snug sm:leading-tight mb-4 min-h-[3em] flex items-center">
+          {/* Text Content */}
+          <div className="w-full lg:w-1/2 text-center lg:text-left space-y-8">
+            {/* Product Name with typing + cursor */}
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
               <span className="inline-block">
-                {displayedText}
-                {/* Blinking cursor */}
-                {displayedText.length < (product.name?.length || 0) && (
-                  <span className="inline-block w-1 h-10 bg-gray-900 ml-1 animate-pulse" />
+                {typedName}
+                {isTypingName && (
+                  <span className="inline-block w-1 h-12 bg-gray-900 ml-1 animate-pulse align-middle" />
                 )}
               </span>
             </h2>
 
+            {/* Brand + Subcategory */}
             {product.brand && (
-              <p className="text-xs sm:text-sm uppercase text-gray-500 tracking-widest mb-4 opacity-0 animate-fade-in animation-delay-1000">
+              <p className="text-sm uppercase tracking-widest text-gray-600">
                 {product.brand}
                 {product.subcategory && ` — ${product.subcategory}`}
               </p>
             )}
 
-            {product.description && (
-              <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-6 sm:mb-8 leading-relaxed max-w-lg lg:max-w-none mx-auto lg:mx-0 line-clamp-4 opacity-0 animate-fade-in animation-delay-1500">
-                {product.description}
-              </p>
-            )}
+            {/* Description with typing */}
+            <p className="text-lg lg:text-xl text-gray-700 leading-relaxed max-w-2xl">
+              <span>
+                {typedDesc}
+                {!isTypingName && typedDesc.length < (product.description?.length || 0) && (
+                  <span className="inline-block w-0.5 h-7 bg-gray-700 ml-0.5 animate-pulse align-middle" />
+                )}
+              </span>
+            </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start opacity-0 animate-fade-in animation-delay-2000">
+            {/* CTA */}
+            <div className="pt-6">
               <Link
                 href={`/products/id/${product.id}`}
-                className="inline-block border-2 border-black text-black font-semibold uppercase tracking-wider px-6 py-3 text-sm sm:text-base transition-all hover:bg-black hover:text-white text-center rounded-lg shadow-lg hover:shadow-xl"
+                className="inline-block bg-black text-white px-8 py-4 rounded-full font-semibold uppercase tracking-wider hover:bg-gray-800 transition shadow-xl"
               >
                 View Product Details
               </Link>
@@ -162,28 +165,19 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
         {/* Navigation */}
         {products.length > 1 && (
           <>
-            <button
-              onClick={prevProduct}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/80 hover:bg-white rounded-full shadow-lg transition-all hover:scale-110 z-20"
-            >
-              <ChevronLeft className="w-6 h-6" />
+            <button onClick={prevProduct} className="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-white/90 rounded-full shadow-lg hover:scale-110 transition z-20">
+              <ChevronLeft className="w-8 h-8" />
             </button>
-            <button
-              onClick={nextProduct}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/80 hover:bg-white rounded-full shadow-lg transition-all hover:scale-110 z-20"
-            >
-              <ChevronRight className="w-6 h-6" />
+            <button onClick={nextProduct} className="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-white/90 rounded-full shadow-lg hover:scale-110 transition z-20">
+              <ChevronRight className="w-8 h-8" />
             </button>
 
-            {/* Mobile Dots */}
-            <div className="flex justify-center gap-2 mt-8 lg:hidden">
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3">
               {products.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => goToProduct(i)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    i === currentIndex ? 'bg-gray-900 w-8' : 'bg-gray-400'
-                  }`}
+                  className={`w-3 h-3 rounded-full transition-all ${i === currentIndex ? 'bg-black w-12' : 'bg-gray-400'}`}
                 />
               ))}
             </div>
