@@ -65,12 +65,9 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
         />
       </div>
       
-      {/* Background Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/80 to-black/90 -z-10" />
-      
       {/* Background Title */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 opacity-10">
-        <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[12rem] font-extralight uppercase tracking-widest text-white text-center px-4">
+        <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[12rem] font-extralight uppercase tracking-widest text-black text-center px-4">
           {title}
         </h1>
       </div>
@@ -98,7 +95,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
           </div>
 
           {/* Text Content */}
-          <div className="space-y-6 lg:space-y-10 text-center lg:text-left text-white drop-shadow-xl order-1 lg:order-2">
+          <div className="space-y-6 lg:space-y-10 text-center lg:text-left text-black drop-shadow-xl order-1 lg:order-2">
             {/* Name - immediately visible */}
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
               {product.name}
@@ -106,7 +103,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
             {/* Brand and Subcategory */}
             {(product.brand || product.subcategory) && (
-              <p className="text-base sm:text-lg uppercase tracking-widest text-gray-200">
+              <p className="text-base sm:text-lg uppercase tracking-widest text-green-600">
                 {product.brand}
                 {product.brand && product.subcategory && ' — '}
                 {product.subcategory}
@@ -115,7 +112,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
             {/* Description - immediately visible */}
             {product.description && (
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-gray-100 max-w-3xl">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-black max-w-3xl">
                 {product.description}
               </p>
             )}
