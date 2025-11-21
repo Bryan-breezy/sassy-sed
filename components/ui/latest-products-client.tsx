@@ -1,10 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Product } from "@/types"
+
+import ColorThief from "colorthief"
 
 interface LatestProductsClientProps {
   products: (Product & { imageUrl: string })[]
@@ -17,6 +19,11 @@ export function LatestProductsClient({
 }: LatestProductsClientProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
+  // Default color while loading (dark gray)
+  const [bgColor, setBgColor] = useState("rgb(30, 30, 30)")
+  
+  // Ref for the hidden image used for color extraction
+  const colorImgRef = useRef<HTMLImageElement>(null)
 
   const product = products[currentIndex]
 
@@ -37,18 +44,41 @@ export function LatestProductsClient({
     setCurrentIndex(index)
   }
 
+  // This function runs when the HIDDEN image loads
+  const handleColorExtraction = () => {
+    const colorThief = new ColorThief()
+    const img = colorImgRef.current
+
+    if (img) {
+      try {
+        // extract palette
+        const result = colorThief.getColor(img)
+        // Set color state
+        setBgColor(`rgb(${result[0]}, ${result[1]}, ${result[2]})`)
+      } catch (error) {
+        console.error("Could not extract color", error)
+        // Fallback if extraction fails (e.g. CORS issue)
+        setBgColor("rgb(30, 30, 30)") 
+      }
+    }
+  }
+
   return (
     <section
-      className="relative min-h-[80vh] flex items-center p-4 sm:p-8 overflow-hidden transition-all duration-1000 ease-out"
-      style={
-        {
-          "--image-url": `url(${product.image})`,
-          background: "paint(image-palette)", // Native dominant color
-        } as React.CSSProperties
-      }
+      className="relative min-h-[80vh] flex items-center p-4 sm:p-8 overflow-hidden transition-colors duration-1000 ease-out"
+      style={{
+        backgroundColor: bgColor, 
+      }}
     >
-      {/* Gentle overlay so text stays readable on light images */}
-      <div className="absolute inset-0 bg-black/20 pointer-events-none z-10" />
+      <img 
+        ref={colorImgRef}
+        src={product.image}
+        alt="analysis"
+        className="hidden"
+        crossOrigin="anonymous"
+        onLoad={handleColorExtraction}
+      />
+      <div className="absolute inset-0 bg-black/30 pointer-events-none z-10" />
 
       {/* Huge background title */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center opacity-10 pointer-events-none z-0">
@@ -79,7 +109,6 @@ export function LatestProductsClient({
                 } hover:scale-105`}
                 priority={currentIndex === 0}
                 onLoad={() => setIsImageLoaded(true)}
-                onError={() => setIsImageLoaded(true)}
               />
             </div>
           </div>
