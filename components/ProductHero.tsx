@@ -151,24 +151,6 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
             </button>
           </>
         )}
-
-        {/* Indicator Dots - Better positioning */}
-        {products.length > 1 && (
-          <div className="fixed lg:absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3 z-30 bg-black/20 backdrop-blur-sm rounded-full px-4 py-2">
-            {products.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  index === currentIndex 
-                    ? 'bg-white scale-125' 
-                    : 'bg-white/50 hover:bg-white/70'
-                }`}
-                aria-label={`Go to product ${index + 1}`}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </section>
   )
