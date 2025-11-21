@@ -45,8 +45,6 @@ export default async function LatestProductsSection({
       <LatestProductsClient
         products={productsWithUrls}
         title={title}
-        backgroundColor={backgroundColor}
-        textColor={textColor}
       />
     )
 
