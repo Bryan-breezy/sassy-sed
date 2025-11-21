@@ -112,7 +112,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
             {/* Description */}
             {product.description && (
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-neutral-900 max-w-3xl">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-stone-400 max-w-3xl">
                 {product.description}
               </p>
             )}
