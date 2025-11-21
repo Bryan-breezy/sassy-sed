@@ -1,16 +1,16 @@
 'use client'
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Product } from '@/types';
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Product } from '@/types'
 
 interface ProductHeroProps {
-  products: Product[];
-  title: string;
-  backgroundColor?: string;
-  textColor?: string;
-  autoSwitchInterval?: number;
+  products: Product[]
+  title: string
+  backgroundColor?: string
+  textColor?: string
+  autoSwitchInterval?: number
 }
 
 export const ProductHero: React.FC<ProductHeroProps> = ({
@@ -20,82 +20,82 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   textColor = "text-gray-900",
   autoSwitchInterval = 7000
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isImageLoaded, setIsImageLoaded] = useState(false)
 
   // Typing state
-  const [typedName, setTypedName] = useState('');
-  const [typedDesc, setTypedDesc] = useState('');
-  const [showCursor, setShowCursor] = useState(true); // blinking cursor
-  const [isTypingName, setIsTypingName] = useState(true);
+  const [typedName, setTypedName] = useState('')
+  const [typedDesc, setTypedDesc] = useState('')
+  const [showCursor, setShowCursor] = useState(true) // blinking cursor
+  const [isTypingName, setIsTypingName] = useState(true)
 
-  const product = products[currentIndex];
+  const product = products[currentIndex]
 
   // Reset on product change
   useEffect(() => {
-    setIsImageLoaded(false);
-    setTypedName('');
-    setTypedDesc('');
-    setIsTypingName(true);
-    setShowCursor(true);
-  }, [currentIndex]);
+    setIsImageLoaded(false)
+    setTypedName('')
+    setTypedDesc('')
+    setIsTypingName(true)
+    setShowCursor(true)
+  }, [currentIndex])
 
   // Blinking cursor effect
   useEffect(() => {
-    const blink = setInterval(() => setShowCursor(v => !v), 530);
-    return () => clearInterval(blink);
-  }, []);
+    const blink = setInterval(() => setShowCursor(v => !v), 530)
+    return () => clearInterval(blink)
+  }, [])
 
   // Typing animation
   useEffect(() => {
-    if (!isImageLoaded || !product) return;
+    if (!isImageLoaded || !product) return
 
-    const nameText = product.name || '';
-    const descText = product.description || '';
+    const nameText = product.name || ''
+    const descText = product.description || ''
 
-    let nameIdx = 0;
-    let descIdx = 0;
+    let nameIdx = 0
+    let descIdx = 0
 
     const typeName = setInterval(() => {
       if (nameIdx < nameText.length) {
-        setTypedName(prev => prev + nameText[nameIdx]);
-        nameIdx++;
+        setTypedName(prev => prev + nameText[nameIdx])
+        nameIdx++
       } else {
-        clearInterval(typeName);
-        setIsTypingName(false);
+        clearInterval(typeName)
+        setIsTypingName(false)
 
         // Start typing description after name finishes
         const typeDesc = setInterval(() => {
           if (descIdx < descText.length) {
-            setTypedDesc(prev => prev + descText[descIdx]);
-            descIdx++;
+            setTypedDesc(prev => prev + descText[descIdx])
+            descIdx++
           } else {
-            clearInterval(typeDesc);
+            clearInterval(typeDesc)
             setShowCursor(false); // hide cursor when done
           }
-        }, 25); // Fast but readable
+        }, 25) // Fast but readable
 
-        return () => clearInterval(typeDesc);
+        return () => clearInterval(typeDesc)
       }
-    }, 80); // Name typing speed
+    }, 80) // Name typing speed
 
-    return () => clearInterval(typeName);
-  }, [isImageLoaded, product]);
+    return () => clearInterval(typeName)
+  }, [isImageLoaded, product])
 
   // Auto-switch
   useEffect(() => {
-    if (products.length <= 1) return;
+    if (products.length <= 1) return
     const interval = setInterval(() => {
-      setCurrentIndex(i => i === products.length - 1 ? 0 : i + 1);
-    }, autoSwitchInterval);
-    return () => clearInterval(interval);
-  }, [products.length, autoSwitchInterval]);
+      setCurrentIndex(i => i === products.length - 1 ? 0 : i + 1)
+    }, autoSwitchInterval)
+    return () => clearInterval(interval)
+  }, [products.length, autoSwitchInterval])
 
-  const nextProduct = () => setCurrentIndex(i => i === products.length - 1 ? 0 : i + 1);
-  const prevProduct = () => setCurrentIndex(i => i === 0 ? products.length - 1 : i - 1);
+  const nextProduct = () => setCurrentIndex(i => i === products.length - 1 ? 0 : i + 1)
+  const prevProduct = () => setCurrentIndex(i => i === 0 ? products.length - 1 : i - 1)
 
   if (!products?.length) {
-    return <div className="min-h-screen flex items-center justify-center">No products</div>;
+    return <div className="min-h-screen flex items-center justify-center">No products</div>
   }
 
   return (
