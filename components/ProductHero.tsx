@@ -74,8 +74,8 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
       <div className="container mx-auto max-w-7xl relative z-20">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-          {/* Product Image Container with relative positioning for arrows */}
-          <div className="flex justify-center order-1 relative">
+          {/* Product Image */}
+          <div className="flex justify-center order-1">
             <div className="relative w-full max-w-2xl aspect-square rounded-3xl overflow-hidden shadow-2xl">
               {!isImageLoaded && (
                 <div className="absolute inset-0 bg-gray-800 animate-pulse rounded-3xl" />
@@ -92,32 +92,11 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
                 priority={currentIndex === 0}
               />
             </div>
-
-            {/* Navigation Arrows - Positioned relative to image container */}
-            {products.length > 1 && (
-              <>
-                <button
-                  onClick={prevProduct}
-                  className="absolute -left-4 sm:-left-6 lg:-left-8 top-1/2 -translate-y-1/2 p-3 sm:p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-20 border-2 border-gray-200"
-                  aria-label="Previous product"
-                >
-                  <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7 text-black" />
-                </button>
-            
-                <button
-                  onClick={nextProduct}
-                  className="absolute -right-4 sm:-right-6 lg:-right-8 top-1/2 -translate-y-1/2 p-3 sm:p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-20 border-2 border-gray-200"
-                  aria-label="Next product"
-                >
-                  <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7 text-black" />
-                </button>
-              </>
-            )}
           </div>
 
-          {/* Text Content - Below image for mobile */}
+          {/* Text Content */}
           <div className="space-y-6 lg:space-y-10 text-center lg:text-left text-stone-400 drop-shadow-xl order-2">
-            {/* Name - immediately visible */}
+            {/* Name */}
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
               {product.name}
             </h2>
@@ -131,7 +110,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
               </p>
             )}
 
-            {/* Description - immediately visible */}
+            {/* Description */}
             {product.description && (
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-neutral-900 max-w-3xl">
                 {product.description}
@@ -150,9 +129,32 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
           </div>
         </div>
 
-        {/* Indicator Dots - Positioned safely */}
+        {/* Navigation Arrows - Properly positioned */}
         {products.length > 1 && (
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-3 z-20">
+          <>
+            <button
+              onClick={prevProduct}
+              className="fixed lg:absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm"
+              aria-label="Previous product"
+              style={{ marginTop: '-2rem' }}
+            >
+              <ChevronLeft className="w-6 h-6 lg:w-8 lg:h-8 text-black" />
+            </button>
+        
+            <button
+              onClick={nextProduct}
+              className="fixed lg:absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm"
+              aria-label="Next product"
+              style={{ marginTop: '-2rem' }}
+            >
+              <ChevronRight className="w-6 h-6 lg:w-8 lg:h-8 text-black" />
+            </button>
+          </>
+        )}
+
+        {/* Indicator Dots - Better positioning */}
+        {products.length > 1 && (
+          <div className="fixed lg:absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3 z-30 bg-black/20 backdrop-blur-sm rounded-full px-4 py-2">
             {products.map((_, index) => (
               <button
                 key={index}
