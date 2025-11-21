@@ -93,9 +93,6 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
         />
       </div>
 
-      {/* Soft gradient overlay for readability */}
-       <div className="absolute inset-0 bg-black/60 -z-10" />
-
       {/* Background Title */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-10 text-white">
         <h1 className="text-8xl md:text-9xl lg:text-[12rem] font-extralight uppercase tracking-widest">
