@@ -82,7 +82,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   }
 
   return (
-    <section className="relative min-h-screen flex items-center p-8 overflow-hidden text-white">
+    <section className="relative min-h-screen flex items-center p-8 overflow-hidden text-black">
       <div className="absolute inset-0 -z-10">
         <Image
           src={product.image}
