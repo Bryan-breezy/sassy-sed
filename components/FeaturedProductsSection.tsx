@@ -19,7 +19,7 @@ export default async function FeaturedProducts() {
       allProducts = []
     } else {
       allProducts = productsData
-      featuredProducts = allProducts.filter(p => p.featured).slice(0, 4) // Even number for better grid layout
+      featuredProducts = allProducts.filter(p => p.featured).slice(0, 4)
     }
   } catch (err) {
     console.error("Error fetching products:", err)
@@ -31,17 +31,15 @@ export default async function FeaturedProducts() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50/30">
+      
       {/* Auto-switching Product Hero Section */}
       {heroProducts.length > 0 && (
         <ProductHero 
           products={heroProducts}
           title="Featured"
-          backgroundColor="bg-gradient-to-br from-white via-blue-50/20 to-emerald-50/20"
-          textColor="text-gray-800"
-          autoSwitchInterval={4000}
+          autoSwitchInterval={5000}
         />
       )}
-
 
       {/* Featured Products Section */}
       <section className="py-16 lg:py-24 bg-white">
@@ -96,7 +94,6 @@ export default async function FeaturedProducts() {
                   </Link>
                 </Button>
               </div>
-            
             </div>
           </div>
         </div>
