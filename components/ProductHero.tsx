@@ -89,11 +89,11 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
           alt="background"
           fill
           priority
-          className="object-cover blur-2xl scale-110 opacity-50"
+          className="object-cover blur-2xl scale-110 brightness-50"
         />
       </div>
       
-      <div className="absolute inset-0 bg-black/70 -z-10" />
+    <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/80 to-black/90 -z-10" />
       
       {/* Background Title */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 opacity-10 text-white">
@@ -167,22 +167,24 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
         </div>
 
         {/* Navigation Arrows */}
+        {/* Navigation Arrows */}
         {products.length > 1 && (
           <>
+            {/* Prev Arrow (Left) */}
             <button
               onClick={prevProduct}
               className="absolute left-8 top-1/2 -translate-y-1/2 p-5 bg-white/80 rounded-full shadow-2xl hover:scale-110 transition z-20"
             >
               <ChevronLeft className="w-10 h-10 text-black" />
             </button>
-
+        
+            {/* Next Arrow (Right) */}
             <button
               onClick={nextProduct}
-              className="absolute left-8 top-1/2 -translate-y-1/2 p-5 bg-white/80 rounded-full shadow-2xl hover:scale-110 transition z-20"
+              className="absolute right-8 top-1/2 -translate-y-1/2 p-5 bg-white/80 rounded-full shadow-2xl hover:scale-110 transition z-20"
             >
               <ChevronRight className="w-10 h-10 text-black" />
             </button>
-
           </>
         )}
       </div>
