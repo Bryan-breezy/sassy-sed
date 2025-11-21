@@ -4,7 +4,6 @@ import { LatestProductsSectionProps } from "@/types"
 
 export default async function LatestProductsSection({
   title = "Latest Products",
-  backgroundColor = "bg-white",
   textColor = "text-green-600"
 }: LatestProductsSectionProps) {
   try {
