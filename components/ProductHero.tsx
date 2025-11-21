@@ -95,7 +95,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
           </div>
 
           {/* Text Content */}
-          <div className="space-y-6 lg:space-y-10 text-center lg:text-left text-black drop-shadow-xl order-1 lg:order-2">
+          <div className="space-y-6 lg:space-y-10 text-center lg:text-left text-stone-400 drop-shadow-xl order-1 lg:order-2">
             {/* Name - immediately visible */}
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
               {product.name}
