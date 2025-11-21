@@ -1,105 +1,195 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Product } from '@/types'
-import { ProductGrid } from '@/components/ProductGrid'
-import { ProductHero } from '@/components/ProductHero'
-import getAllProducts from "@/lib/getAllProducts"
-import { ArrowRight } from 'lucide-react'
+'use client'
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Product } from '@/types';
 
-export default async function FeaturedProducts() {
-  let featuredProducts: Product[] = []
-  let allProducts: Product[] = []
+interface ProductHeroProps {
+  products: Product[];
+  title: string;
+  backgroundColor?: string;
+  textColor?: string;
+  autoSwitchInterval?: number;
+}
 
-  try {
-    const productsData = await getAllProducts()
-    
-    if (!Array.isArray(productsData)) {
-      console.error("getAllProducts() did not return an array:", productsData)
-      featuredProducts = []
-      allProducts = []
-    } else {
-      allProducts = productsData
-      featuredProducts = allProducts.filter(p => p.featured).slice(0, 4)
-    }
-  } catch (err) {
-    console.error("Error fetching products:", err)
-    featuredProducts = []
-    allProducts = []
+export const ProductHero: React.FC<ProductHeroProps> = ({
+  products,
+  title,
+  backgroundColor = "bg-white",
+  textColor = "text-gray-900",
+  autoSwitchInterval = 5000
+}) => {
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
+  const [displayedText, setDisplayedText] = useState<string>(''); // For typing effect
+
+  const product = products[currentIndex];
+
+  // Reset displayed text when product changes
+  useEffect(() => {
+    setDisplayedText('');
+    setIsImageLoaded(false);
+  }, [currentIndex]);
+
+  // Letter-by-letter typing animation
+  useEffect(() => {
+    if (!product?.name || !isImageLoaded) return;
+
+    let currentText = '';
+    const textToType = product.name;
+    let index = 0;
+
+    const timer = setInterval(() => {
+      currentText += textToType[index];
+      setDisplayedText(currentText);
+      index++;
+
+      if (index >= textToType.length) {
+        clearInterval(timer);
+      }
+    }, 60); // Adjust speed: lower = faster
+
+    return () => clearInterval(timer);
+  }, [product?.name, isImageLoaded]);
+
+  // Auto-switch
+  useEffect(() => {
+    if (products.length <= 1) return;
+    const interval = setInterval(() => {
+      nextProduct();
+    }, autoSwitchInterval);
+    return () => clearInterval(interval);
+  }, [products.length, autoSwitchInterval, currentIndex]);
+
+  const nextProduct = () => {
+    if (products.length <= 1) return;
+    setCurrentIndex(prev => prev === products.length - 1 ? 0 : prev + 1);
+  };
+
+  const prevProduct = () => {
+    if (products.length <= 1) return;
+    setCurrentIndex(prev => prev === 0 ? products.length - 1 : prev - 1);
+  };
+
+  const goToProduct = (index: number) => {
+    if (index === currentIndex) return;
+    setCurrentIndex(index);
+  };
+
+  if (!products || products.length === 0) {
+    return (
+      <section className={`min-h-[60vh] flex items-center justify-center ${backgroundColor} p-8`}>
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-gray-600">Error loading products</h2>
+          <p className="text-gray-500 mt-2">Please refresh the page</p>
+        </div>
+      </section>
+    );
   }
 
-  // Get products for the Hero Slider (First 4 featured)
-  const heroProducts = allProducts.filter(p => p.featured).slice(0, 4)
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50/30">
-      
-      {/* Auto-switching Product Hero Section */}
-      {heroProducts.length > 0 && (
-        <ProductHero 
-          products={heroProducts}
-          title="Featured"
-          autoSwitchInterval={5000}
-          // Removed backgroundColor and textColor props as they are now handled internally
-        />
-      )}
+    <section className={`relative min-h-[80vh] flex items-center ${backgroundColor} p-4 sm:p-8 overflow-hidden`}>
+      {/* Background Text Overlay */}
+      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center ${textColor} opacity-10 pointer-events-none z-0`}>
+        <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-extralight uppercase tracking-wider">
+          {title}
+        </h1>
+      </div>
 
-      {/* Featured Products Section */}
-      <section className="py-16 lg:py-24 bg-white">
-        <div className="container mx-auto px-4 max-w-7xl">
-          {/* Section Header */}
-          <div className="text-center mb-12 lg:mb-16 px-4">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
-              Featured{' '}
-              <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                Products
+      <div className="container mx-auto max-w-7xl relative z-10">
+        <div className="flex flex-col lg:flex-row items-center gap-8 sm:gap-12 lg:gap-16">
+          {/* Left: Image */}
+          <div className="w-full lg:w-1/2 flex justify-center lg:justify-start">
+            <div className="relative w-full max-w-md sm:max-w-lg md:max-w-xl h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px] overflow-hidden rounded-lg shadow-2xl">
+              {!isImageLoaded && (
+                <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-lg" />
+              )}
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                onLoad={() => setIsImageLoaded(true)}
+                onError={() => setIsImageLoaded(true)}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className={`object-contain object-center transition-all duration-700 ${
+                  isImageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                } hover:scale-105`}
+                priority={currentIndex === 0}
+              />
+            </div>
+          </div>
+
+          {/* Right: Product Info */}
+          <div className={`w-full lg:w-1/2 text-center lg:text-left px-2 sm:px-4 transition-opacity duration-700 ${
+            isImageLoaded ? 'opacity-100' : 'opacity-0'
+          }`}>
+            {/* Typing Animation for Name */}
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-900 leading-snug sm:leading-tight mb-4 min-h-[3em] flex items-center">
+              <span className="inline-block">
+                {displayedText}
+                {/* Blinking cursor */}
+                {displayedText.length < (product.name?.length || 0) && (
+                  <span className="inline-block w-1 h-10 bg-gray-900 ml-1 animate-pulse" />
+                )}
               </span>
             </h2>
-            <p className="text-base sm:text-lg text-gray-600 max-w-xl mx-auto leading-relaxed">
-              Handpicked favorites that our customers love.
-            </p>
-          </div>
 
-          {/* Product Grid */}
-          <div className="mb-16">
-            <ProductGrid featuredProducts={featuredProducts} />
-          </div>
-
-          {/* CTA Section */}
-          <div className="text-center">
-            <div className="bg-gradient-to-r from-gray-50 to-white rounded-3xl p-8 lg:p-12 border border-gray-100 shadow-sm max-w-4xl mx-auto">
-              <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
-                Ready to Explore More?
-              </h3>
-              <p className="text-gray-600 mb-8 max-w-2xl mx-auto text-lg">
-                Discover our complete collection of premium products designed to elevate your experience.
+            {product.brand && (
+              <p className="text-xs sm:text-sm uppercase text-gray-500 tracking-widest mb-4 opacity-0 animate-fade-in animation-delay-1000">
+                {product.brand}
+                {product.subcategory && ` — ${product.subcategory}`}
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button 
-                  asChild 
-                  size="lg"
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 text-base font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                >
-                  <Link href="/products" className="flex items-center gap-2">
-                    Explore All Products
-                    <ArrowRight className="w-5 h-5" />
-                  </Link>
-                </Button>
-                
-                <Button 
-                  asChild 
-                  variant="outline"
-                  size="lg"
-                  className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 px-8 py-3 text-base font-medium rounded-full transition-all duration-300"
-                >
-                  <Link href="/categories">
-                    Browse Categories
-                  </Link>
-                </Button>
-              </div>
+            )}
+
+            {product.description && (
+              <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-6 sm:mb-8 leading-relaxed max-w-lg lg:max-w-none mx-auto lg:mx-0 line-clamp-4 opacity-0 animate-fade-in animation-delay-1500">
+                {product.description}
+              </p>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start opacity-0 animate-fade-in animation-delay-2000">
+              <Link
+                href={`/products/id/${product.id}`}
+                className="inline-block border-2 border-black text-black font-semibold uppercase tracking-wider px-6 py-3 text-sm sm:text-base transition-all hover:bg-black hover:text-white text-center rounded-lg shadow-lg hover:shadow-xl"
+              >
+                View Product Details
+              </Link>
             </div>
           </div>
         </div>
-      </section>
-    </div>
-  )
-}
+
+        {/* Navigation */}
+        {products.length > 1 && (
+          <>
+            <button
+              onClick={prevProduct}
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/80 hover:bg-white rounded-full shadow-lg transition-all hover:scale-110 z-20"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <button
+              onClick={nextProduct}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/80 hover:bg-white rounded-full shadow-lg transition-all hover:scale-110 z-20"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
+            {/* Mobile Dots */}
+            <div className="flex justify-center gap-2 mt-8 lg:hidden">
+              {products.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goToProduct(i)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    i === currentIndex ? 'bg-gray-900 w-8' : 'bg-gray-400'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  );
+};
