@@ -1,13 +1,13 @@
 'use client'
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Product } from '@/types';
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Product } from '@/types'
 
 interface ProductHeroProps {
-  products: Product[];
-  title: string;
+  products: Product[]
+  title: string
 }
 
 export const ProductHero: React.FC<ProductHeroProps> = ({
@@ -15,76 +15,74 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   title,
 }) => {
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isImageLoaded, setIsImageLoaded] = useState(false)
 
-  const [typedName, setTypedName] = useState('');
-  const [typedDesc, setTypedDesc] = useState('');
-  const [showCursor, setShowCursor] = useState(true);
-  const [isTypingName, setIsTypingName] = useState(true);
+  const [typedName, setTypedName] = useState('')
+  const [typedDesc, setTypedDesc] = useState('')
+  const [showCursor, setShowCursor] = useState(true)
+  const [isTypingName, setIsTypingName] = useState(true)
 
-  const product = products[currentIndex];
+  const product = products[currentIndex]
 
   // Reset typing on product change
   useEffect(() => {
-    setIsImageLoaded(false);
-    setTypedName('');
-    setTypedDesc('');
-    setShowCursor(true);
-    setIsTypingName(true);
-  }, [currentIndex]);
+    setIsImageLoaded(false)
+    setTypedName('')
+    setTypedDesc('')
+    setShowCursor(true)
+    setIsTypingName(true)
+  }, [currentIndex])
 
   // Cursor blink
   useEffect(() => {
-    const blink = setInterval(() => setShowCursor(v => !v), 500);
-    return () => clearInterval(blink);
-  }, []);
+    const blink = setInterval(() => setShowCursor(v => !v), 500)
+    return () => clearInterval(blink)
+  }, [])
 
   // Typing animation
   useEffect(() => {
-    if (!isImageLoaded || !product) return;
+    if (!isImageLoaded || !product) return
 
-    const nameText = product.name || '';
-    const descText = product.description || '';
+    const nameText = product.name || ''
+    const descText = product.description || ''
 
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout
 
     const typeName = (index: number) => {
       if (index < nameText.length) {
-        setTypedName(prev => prev + nameText[index]);
-        timeoutId = setTimeout(() => typeName(index + 1), 80);
+        setTypedName(prev => prev + nameText[index])
+        timeoutId = setTimeout(() => typeName(index + 1), 80)
       } else {
-        setIsTypingName(false);
-        timeoutId = setTimeout(() => typeDesc(0), 120);
+        setIsTypingName(false)
+        timeoutId = setTimeout(() => typeDesc(0), 120)
       }
-    };
+    }
 
     const typeDesc = (index: number) => {
       if (index < descText.length) {
-        setTypedDesc(prev => prev + descText[index]);
-        timeoutId = setTimeout(() => typeDesc(index + 1), 25);
+        setTypedDesc(prev => prev + descText[index])
+        timeoutId = setTimeout(() => typeDesc(index + 1), 25)
       }
-    };
+    }
 
-    timeoutId = setTimeout(() => typeName(0), 200);
+    timeoutId = setTimeout(() => typeName(0), 200)
 
-    return () => clearTimeout(timeoutId);
-  }, [isImageLoaded, product]);
+    return () => clearTimeout(timeoutId)
+  }, [isImageLoaded, product])
 
   const nextProduct = () =>
-    setCurrentIndex(i => i === products.length - 1 ? 0 : i + 1);
+    setCurrentIndex(i => i === products.length - 1 ? 0 : i + 1)
 
   const prevProduct = () =>
-    setCurrentIndex(i => i === 0 ? products.length - 1 : i - 1);
+    setCurrentIndex(i => i === 0 ? products.length - 1 : i - 1)
 
   if (!products?.length) {
-    return <div className="min-h-screen flex items-center justify-center">No products</div>;
+    return <div className="min-h-screen flex items-center justify-center">No products</div>
   }
 
   return (
-    <section className="relative min-h-screen flex items-center p-8 overflow-hidden">
-
-      {/* 🌌 Blurred full-screen background matching the image */}
+    <section className="relative min-h-screen flex items-center p-8 overflow-hidden text-white">
       <div className="absolute inset-0 -z-10">
         <Image
           src={product.image}
@@ -96,7 +94,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
       </div>
 
       {/* Soft gradient overlay for readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-white/10 -z-10" />
+       <div className="absolute inset-0 bg-black/60 -z-10" />
 
       {/* Background Title */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-10 text-white">
