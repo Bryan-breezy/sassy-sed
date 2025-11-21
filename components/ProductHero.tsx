@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -14,30 +14,43 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   products,
   title,
 }) => {
-
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
-
   const [typedName, setTypedName] = useState('')
   const [typedDesc, setTypedDesc] = useState('')
   const [showCursor, setShowCursor] = useState(true)
   const [isTypingName, setIsTypingName] = useState(true)
 
-  const product = products[currentIndex]
+  // Safe product access with fallback
+  const product = products?.[currentIndex]
+
+  // Memoized navigation functions
+  const nextProduct = useCallback(() => {
+    setCurrentIndex(i => i === (products?.length ?? 1) - 1 ? 0 : i + 1)
+  }, [products?.length])
+
+  const prevProduct = useCallback(() => {
+    setCurrentIndex(i => i === 0 ? (products?.length ?? 1) - 1 : i - 1)
+  }, [products?.length])
 
   // Reset typing on product change
   useEffect(() => {
+    if (!product) return
+    
     setIsImageLoaded(false)
     setTypedName('')
     setTypedDesc('')
     setShowCursor(true)
     setIsTypingName(true)
-  }, [currentIndex])
+  }, [currentIndex, product])
 
-  // Cursor blink
+  // Cursor blink effect
   useEffect(() => {
-    const blink = setInterval(() => setShowCursor(v => !v), 500)
-    return () => clearInterval(blink)
+    const blinkInterval = setInterval(() => {
+      setShowCursor(prev => !prev)
+    }, 500)
+    
+    return () => clearInterval(blinkInterval)
   }, [])
 
   // Typing animation
@@ -46,12 +59,11 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
     const nameText = product.name || ''
     const descText = product.description || ''
-
     let timeoutId: NodeJS.Timeout
 
     const typeName = (index: number) => {
       if (index < nameText.length) {
-        setTypedName(prev => prev + nameText[index])
+        setTypedName(nameText.substring(0, index + 1))
         timeoutId = setTimeout(() => typeName(index + 1), 80)
       } else {
         setIsTypingName(false)
@@ -61,63 +73,91 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
     const typeDesc = (index: number) => {
       if (index < descText.length) {
-        setTypedDesc(prev => prev + descText[index])
+        setTypedDesc(descText.substring(0, index + 1))
         timeoutId = setTimeout(() => typeDesc(index + 1), 25)
+      } else {
+        setShowCursor(false)
       }
     }
 
+    // Start typing animation
     timeoutId = setTimeout(() => typeName(0), 200)
 
-    return () => clearTimeout(timeoutId)
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+    }
   }, [isImageLoaded, product])
 
-  const nextProduct = () =>
-    setCurrentIndex(i => i === products.length - 1 ? 0 : i + 1)
+  // Auto-advance carousel (optional)
+  useEffect(() => {
+    if (!products || products.length <= 1) return
+    
+    const intervalId = setInterval(() => {
+      nextProduct()
+    }, 8000) // Change every 8 seconds
 
-  const prevProduct = () =>
-    setCurrentIndex(i => i === 0 ? products.length - 1 : i - 1)
+    return () => clearInterval(intervalId)
+  }, [nextProduct, products])
 
+  // Early return for empty products
   if (!products?.length) {
-    return <div className="min-h-screen flex items-center justify-center">No products</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p className="text-xl text-gray-600">No products available</p>
+      </div>
+    )
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p className="text-xl text-gray-600">Product not found</p>
+      </div>
+    )
   }
 
   return (
-    <section className="relative min-h-screen flex items-center p-8 overflow-hidden">
+    <section className="relative min-h-screen flex items-center p-4 sm:p-8 overflow-hidden">
+      {/* Background Image */}
       <div className="absolute inset-0 -z-20">
         <Image
-          src={product.image}
+          src={product.image || '/placeholder-image.jpg'}
           alt="background"
           fill
-          priority
+          priority={currentIndex === 0}
           className="object-cover blur-2xl scale-110 brightness-50"
+          onLoad={() => setIsImageLoaded(true)}
         />
       </div>
       
-    <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/80 to-black/90 -z-10" />
+      {/* Background Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/80 to-black/90 -z-10" />
       
       {/* Background Title */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 opacity-10 text-white">
-        <h1 className="text-8xl md:text-9xl lg:text-[12rem] font-extralight uppercase tracking-widest">
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 opacity-10">
+        <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[12rem] font-extralight uppercase tracking-widest text-white text-center px-4">
           {title}
         </h1>
       </div>
 
       <div className="container mx-auto max-w-7xl relative z-20">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Product Image */}
-          <div className="flex justify-center">
+          <div className="flex justify-center order-2 lg:order-1">
             <div className="relative w-full max-w-2xl aspect-square rounded-3xl overflow-hidden shadow-2xl">
               {!isImageLoaded && (
-                <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-3xl" />
+                <div className="absolute inset-0 bg-gray-800 animate-pulse rounded-3xl" />
               )}
-
               <Image
                 src={product.image}
-                alt={product.name}
+                alt={product.name || 'Product image'}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className={`object-contain transition-all duration-1000 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`object-contain transition-all duration-1000 ${
+                  isImageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
                 onLoad={() => setIsImageLoaded(true)}
                 priority={currentIndex === 0}
               />
@@ -125,40 +165,39 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
           </div>
 
           {/* Text Content */}
-          <div className="space-y-10 text-center lg:text-left text-white drop-shadow-xl">
-
-            {/* Name */}
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
+          <div className="space-y-6 lg:space-y-10 text-center lg:text-left text-white drop-shadow-xl order-1 lg:order-2">
+            {/* Name with typing animation */}
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight min-h-[1.2em]">
               {typedName}
               {isTypingName && showCursor && (
-                <span className="inline-block w-1 h-14 bg-white ml-1 animate-pulse" />
+                <span className="inline-block w-0.5 sm:w-1 h-12 sm:h-14 bg-white ml-1 animate-pulse align-middle" />
               )}
             </h2>
 
-            {/* Brand */}
-            {product.brand && (
-              <p className="text-lg uppercase tracking-widest text-gray-200">
+            {/* Brand and Subcategory */}
+            {(product.brand || product.subcategory) && (
+              <p className="text-base sm:text-lg uppercase tracking-widest text-gray-200">
                 {product.brand}
-                {product.subcategory && ` — ${product.subcategory}`}
+                {product.brand && product.subcategory && ' — '}
+                {product.subcategory}
               </p>
             )}
 
-            {/* Description */}
-            <p className="text-lg md:text-xl lg:text-2xl leading-relaxed text-gray-100 max-w-3xl">
+            {/* Description with typing animation */}
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed text-gray-100 max-w-3xl min-h-[1.5em]">
               {typedDesc}
-              {!isTypingName &&
-                typedDesc.length < (product.description?.length || 0) &&
-                showCursor && (
-                  <span className="inline-block w-1 h-8 bg-white ml-1 animate-pulse" />
-                )
-              }
+              {!isTypingName && 
+               typedDesc.length < (product.description?.length || 0) && 
+               showCursor && (
+                <span className="inline-block w-0.5 sm:w-1 h-6 sm:h-8 bg-white ml-1 animate-pulse align-middle" />
+              )}
             </p>
 
-            {/* CTA */}
-            <div className="pt-8">
+            {/* CTA Button */}
+            <div className="pt-4 lg:pt-8">
               <Link
                 href={`/products/id/${product.id}`}
-                className="inline-block bg-white text-black px-10 py-5 rounded-full text-lg font-semibold uppercase tracking-wider hover:bg-gray-200 transition-all shadow-2xl hover:shadow-3xl"
+                className="inline-block bg-white text-black px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 rounded-full text-base sm:text-lg font-semibold uppercase tracking-wider hover:bg-gray-200 transition-all shadow-2xl hover:shadow-3xl transform hover:scale-105"
               >
                 View Product Details
               </Link>
@@ -167,27 +206,44 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
         </div>
 
         {/* Navigation Arrows */}
-        {/* Navigation Arrows */}
         {products.length > 1 && (
           <>
-            {/* Prev Arrow (Left) */}
             <button
               onClick={prevProduct}
-              className="absolute left-8 top-1/2 -translate-y-1/2 p-5 bg-white/80 rounded-full shadow-2xl hover:scale-110 transition z-20"
+              className="absolute left-2 sm:left-4 lg:left-8 top-1/2 -translate-y-1/2 p-3 sm:p-4 lg:p-5 bg-white/80 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-20"
+              aria-label="Previous product"
             >
-              <ChevronLeft className="w-10 h-10 text-black" />
+              <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-black" />
             </button>
         
-            {/* Next Arrow (Right) */}
             <button
               onClick={nextProduct}
-              className="absolute right-8 top-1/2 -translate-y-1/2 p-5 bg-white/80 rounded-full shadow-2xl hover:scale-110 transition z-20"
+              className="absolute right-2 sm:right-4 lg:right-8 top-1/2 -translate-y-1/2 p-3 sm:p-4 lg:p-5 bg-white/80 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-20"
+              aria-label="Next product"
             >
-              <ChevronRight className="w-10 h-10 text-black" />
+              <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-black" />
             </button>
           </>
         )}
+
+        {/* Indicator Dots */}
+        {products.length > 1 && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
+            {products.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentIndex 
+                    ? 'bg-white scale-125' 
+                    : 'bg-white/50 hover:bg-white/70'
+                }`}
+                aria-label={`Go to product ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
-  );
-};
+  )
+}
