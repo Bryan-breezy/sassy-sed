@@ -1,16 +1,16 @@
 'use client'
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Product } from '@/types'
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Product } from '@/types';
 
 interface ProductHeroProps {
-  products: Product[]
-  title: string
-  backgroundColor?: string
-  textColor?: string
-  autoSwitchInterval?: number
+  products: Product[];
+  title: string;
+  backgroundColor?: string;
+  textColor?: string;
+  autoSwitchInterval?: number;
 }
 
 export const ProductHero: React.FC<ProductHeroProps> = ({
@@ -20,82 +20,82 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   textColor = "text-gray-900",
   autoSwitchInterval = 7000
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isImageLoaded, setIsImageLoaded] = useState(false)
 
-  // Typing state
-  const [typedName, setTypedName] = useState('')
-  const [typedDesc, setTypedDesc] = useState('')
-  const [showCursor, setShowCursor] = useState(true) // blinking cursor
-  const [isTypingName, setIsTypingName] = useState(true)
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
-  const product = products[currentIndex]
+  const [typedName, setTypedName] = useState('');
+  const [typedDesc, setTypedDesc] = useState('');
+  const [showCursor, setShowCursor] = useState(true);
+  const [isTypingName, setIsTypingName] = useState(true);
+
+  const product = products[currentIndex];
 
   // Reset on product change
   useEffect(() => {
-    setIsImageLoaded(false)
-    setTypedName('')
-    setTypedDesc('')
-    setIsTypingName(true)
-    setShowCursor(true)
-  }, [currentIndex])
+    setIsImageLoaded(false);
+    setTypedName('');
+    setTypedDesc('');
+    setShowCursor(true);
+    setIsTypingName(true);
+  }, [currentIndex]);
 
-  // Blinking cursor effect
+  // cursor blink
   useEffect(() => {
-    const blink = setInterval(() => setShowCursor(v => !v), 530)
-    return () => clearInterval(blink)
-  }, [])
+    const blink = setInterval(() => setShowCursor(v => !v), 500);
+    return () => clearInterval(blink);
+  }, []);
 
-  // Typing animation
+  // typing animation — FIXED (no duplicate intervals)
   useEffect(() => {
-    if (!isImageLoaded || !product) return
+    if (!isImageLoaded || !product) return;
 
-    const nameText = product.name || ''
-    const descText = product.description || ''
+    const nameText = product.name || '';
+    const descText = product.description || '';
 
-    let nameIdx = 0
-    let descIdx = 0
+    let timeoutId: NodeJS.Timeout;
 
-    const typeName = setInterval(() => {
-      if (nameIdx < nameText.length) {
-        setTypedName(prev => prev + nameText[nameIdx])
-        nameIdx++
+    const typeName = (index: number) => {
+      if (index < nameText.length) {
+        setTypedName(prev => prev + nameText[index]);
+        timeoutId = setTimeout(() => typeName(index + 1), 80);
       } else {
-        clearInterval(typeName)
-        setIsTypingName(false)
-
-        // Start typing description after name finishes
-        const typeDesc = setInterval(() => {
-          if (descIdx < descText.length) {
-            setTypedDesc(prev => prev + descText[descIdx])
-            descIdx++
-          } else {
-            clearInterval(typeDesc)
-            setShowCursor(false); // hide cursor when done
-          }
-        }, 25) // Fast but readable
-
-        return () => clearInterval(typeDesc)
+        setIsTypingName(false);
+        timeoutId = setTimeout(() => typeDesc(0), 120);
       }
-    }, 80) // Name typing speed
+    };
 
-    return () => clearInterval(typeName)
-  }, [isImageLoaded, product])
+    const typeDesc = (index: number) => {
+      if (index < descText.length) {
+        setTypedDesc(prev => prev + descText[index]);
+        timeoutId = setTimeout(() => typeDesc(index + 1), 25);
+      }
+    };
 
-  // Auto-switch
+    timeoutId = setTimeout(() => typeName(0), 200);
+
+    return () => clearTimeout(timeoutId);
+  }, [isImageLoaded, product]);
+
+  // Auto switch
   useEffect(() => {
-    if (products.length <= 1) return
-    const interval = setInterval(() => {
-      setCurrentIndex(i => i === products.length - 1 ? 0 : i + 1)
-    }, autoSwitchInterval)
-    return () => clearInterval(interval)
-  }, [products.length, autoSwitchInterval])
+    if (products.length <= 1) return;
 
-  const nextProduct = () => setCurrentIndex(i => i === products.length - 1 ? 0 : i + 1)
-  const prevProduct = () => setCurrentIndex(i => i === 0 ? products.length - 1 : i - 1)
+    const interval = setInterval(() => {
+      setCurrentIndex(i => i === products.length - 1 ? 0 : i + 1);
+    }, autoSwitchInterval);
+
+    return () => clearInterval(interval);
+  }, [products.length, autoSwitchInterval]);
+
+  const nextProduct = () =>
+    setCurrentIndex(i => i === products.length - 1 ? 0 : i + 1);
+
+  const prevProduct = () =>
+    setCurrentIndex(i => i === 0 ? products.length - 1 : i - 1);
 
   if (!products?.length) {
-    return <div className="min-h-screen flex items-center justify-center">No products</div>
+    return <div className="min-h-screen flex items-center justify-center">No products</div>;
   }
 
   return (
@@ -113,30 +113,31 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
           {/* Image */}
           <div className="flex justify-center">
             <div className="relative w-full max-w-2xl aspect-square rounded-3xl overflow-hidden shadow-2xl">
-              {!isImageLoaded && <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-3xl" />}
+              {!isImageLoaded && (
+                <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-3xl" />
+              )}
+
               <Image
                 src={product.image}
                 alt={product.name}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className={`object-contain transition-all duration-1000 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                priority={currentIndex === 0}
                 onLoad={() => setIsImageLoaded(true)}
+                priority={currentIndex === 0}
               />
             </div>
           </div>
 
-          {/* Text Content */}
+          {/* Text */}
           <div className="space-y-10 text-center lg:text-left">
-
-            {/* Product Name */}
+            
+            {/* Name */}
             <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-              <span className="inline-block">
-                {typedName}
-                {isTypingName && showCursor && (
-                  <span className="inline-block w-1 h-16 bg-current ml-1 animate-pulse align-middle" />
-                )}
-              </span>
+              {typedName}
+              {isTypingName && showCursor && (
+                <span className="inline-block w-1 h-14 bg-current ml-1 animate-pulse" />
+              )}
             </h2>
 
             {/* Brand */}
@@ -147,14 +148,15 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
               </p>
             )}
 
-            {/* Full Description – NO TRUNCATION */}
+            {/* Description */}
             <p className="text-lg md:text-xl lg:text-2xl leading-relaxed text-gray-700 max-w-3xl">
-              <span className="block">
-                {typedDesc}
-                {!isTypingName && typedDesc.length < (product.description?.length || 0) && showCursor && (
-                  <span className="inline-block w-0.5 h-8 bg-gray-700 ml-1 animate-pulse align-middle" />
-                )}
-              </span>
+              {typedDesc}
+              {!isTypingName &&
+                typedDesc.length < (product.description?.length || 0) &&
+                showCursor && (
+                  <span className="inline-block w-1 h-8 bg-gray-700 ml-1 animate-pulse" />
+                )
+              }
             </p>
 
             {/* CTA */}
@@ -172,10 +174,17 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
         {/* Navigation */}
         {products.length > 1 && (
           <>
-            <button onClick={prevProduct} className="absolute left-8 top-1/2 -translate-y-1/2 p-5 bg-white/90 rounded-full shadow-2xl hover:scale-110 transition z-20">
+            <button
+              onClick={prevProduct}
+              className="absolute left-8 top-1/2 -translate-y-1/2 p-5 bg-white/90 rounded-full shadow-2xl hover:scale-110 transition z-20"
+            >
               <ChevronLeft className="w-10 h-10" />
             </button>
-            <button onClick={nextProduct} className="absolute right-8 top-1/2 -translate-y-1/2 p-5 bg-white/90 rounded-full shadow-2xl hover:scale-110 transition z-20">
+
+            <button
+              onClick={nextProduct}
+              className="absolute right-8 top-1/2 -translate-y-1/2 p-5 bg-white/90 rounded-full shadow-2xl hover:scale-110 transition z-20"
+            >
               <ChevronRight className="w-10 h-10" />
             </button>
 
@@ -184,7 +193,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
                 <button
                   key={i}
                   onClick={() => setCurrentIndex(i)}
-                  className={`transition-all ${i === currentIndex ? 'w-16 h-3 bg-black' : 'w-3 h-3 bg-gray-400'} rounded-full`}
+                  className={`${i === currentIndex ? 'w-16 h-3 bg-black' : 'w-3 h-3 bg-gray-400'} rounded-full transition-all`}
                 />
               ))}
             </div>
