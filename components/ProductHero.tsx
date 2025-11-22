@@ -23,7 +23,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
   const [isTouching, setIsTouching] = useState(false)
   const [isScrolling, setIsScrolling] = useState(false)
-  const [hideArrowsTimeout, setHideArrowsTimeout] = useState<number | null>(null)
+  const [hideArrowsTimeout, setHideArrowsTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
 
   // Safe product access with fallback
   const product = products?.[currentIndex]
