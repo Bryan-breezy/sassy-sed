@@ -19,6 +19,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const [showSwipeHint, setShowSwipeHint] = useState(true)
+  const [isSwiping, setIsSwiping] = useState(false)
   const sectionRef = useRef<HTMLDivElement>(null)
 
   // Safe product access with fallback
@@ -42,7 +43,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSwipeHint(false)
-    }, 3000)
+    }, 4000)
 
     return () => clearTimeout(timer)
   }, [])
@@ -50,15 +51,20 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   // Touch handlers for swipe gestures
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientX)
+    setIsSwiping(true)
     setShowSwipeHint(false)
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart) return
     setTouchEnd(e.targetTouches[0].clientX)
   }
 
   const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return
+    if (!touchStart || !touchEnd) {
+      setIsSwiping(false)
+      return
+    }
     
     const distance = touchStart - touchEnd
     const isLeftSwipe = distance > 50
@@ -72,6 +78,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
     setTouchStart(null)
     setTouchEnd(null)
+    setIsSwiping(false)
   }
 
   // Early return for empty products
@@ -118,21 +125,48 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
         </h1>
       </div>
 
-      {/* Swipe Hint Animation - Mobile Only */}
+      {/* Swipe Animation Overlay - Mobile Only */}
       {showSwipeHint && products.length > 1 && (
         <div className="lg:hidden absolute inset-0 z-30 pointer-events-none">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 animate-bounce">
-            <div className="bg-black/50 rounded-full p-3 backdrop-blur-sm">
-              <ChevronLeft className="w-6 h-6 text-white" />
+          {/* Swipe Hand Animation */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="flex items-center space-x-8 animate-pulse">
+              {/* Left Swipe Hand */}
+              <div className="flex flex-col items-center space-y-2 animate-swipe-left">
+                <div className="bg-black/60 rounded-2xl p-4 backdrop-blur-sm border border-white/20">
+                  <ChevronLeft className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-white text-sm font-medium bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
+                  Swipe
+                </div>
+              </div>
+              
+              {/* Right Swipe Hand */}
+              <div className="flex flex-col items-center space-y-2 animate-swipe-right">
+                <div className="bg-black/60 rounded-2xl p-4 backdrop-blur-sm border border-white/20">
+                  <ChevronRight className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-white text-sm font-medium bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
+                  Swipe
+                </div>
+              </div>
             </div>
           </div>
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 animate-bounce" style={{ animationDelay: '0.5s' }}>
-            <div className="bg-black/50 rounded-full p-3 backdrop-blur-sm">
-              <ChevronRight className="w-6 h-6 text-white" />
-            </div>
+
+          {/* Bottom Instruction */}
+          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-black/60 text-white px-6 py-3 rounded-2xl backdrop-blur-sm border border-white/20">
+            <p className="text-lg font-medium text-center">Swipe left or right to explore</p>
           </div>
-          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full backdrop-blur-sm text-sm">
-            Swipe to navigate
+        </div>
+      )}
+
+      {/* Active Swiping Feedback */}
+      {isSwiping && (
+        <div className="lg:hidden absolute inset-0 z-20 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="bg-black/40 rounded-full p-6 backdrop-blur-sm animate-ping">
+              <div className="w-8 h-8 bg-white rounded-full"></div>
+            </div>
           </div>
         </div>
       )}
@@ -215,17 +249,19 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
           </div>
         )}
 
-        {/* Mobile Indicator Dots */}
+        {/* Enhanced Indicator Dots - Always Visible */}
         {products.length > 1 && (
-          <div className="lg:hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3 z-30">
+          <div className={`absolute left-1/2 -translate-x-1/2 flex space-x-3 z-30 transition-all duration-300 ${
+            showSwipeHint ? 'bottom-32 lg:bottom-8' : 'bottom-8'
+          }`}>
             {products.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
                   index === currentIndex 
-                    ? 'bg-white scale-125' 
-                    : 'bg-white/50 hover:bg-white/70'
+                    ? 'bg-white scale-125 shadow-lg' 
+                    : 'bg-white/50 hover:bg-white/70 hover:scale-110'
                 }`}
                 aria-label={`Go to product ${index + 1}`}
               />
@@ -233,6 +269,24 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
           </div>
         )}
       </div>
+
+      {/* Add custom animations to tailwind config */}
+      <style jsx>{`
+        @keyframes swipe-left {
+          0%, 100% { transform: translateX(0) scale(1); opacity: 1; }
+          50% { transform: translateX(-20px) scale(1.1); opacity: 0.8; }
+        }
+        @keyframes swipe-right {
+          0%, 100% { transform: translateX(0) scale(1); opacity: 1; }
+          50% { transform: translateX(20px) scale(1.1); opacity: 0.8; }
+        }
+        .animate-swipe-left {
+          animation: swipe-left 2s ease-in-out infinite;
+        }
+        .animate-swipe-right {
+          animation: swipe-right 2s ease-in-out infinite;
+        }
+      `}</style>
     </section>
   )
 }
