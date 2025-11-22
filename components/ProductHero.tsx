@@ -72,27 +72,6 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
         </h1>
       </div>
 
-      {/* Navigation Arrows - Positioned within section boundaries */}
-      {products.length > 1 && (
-        <>
-          <button
-            onClick={prevProduct}
-            className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm"
-            aria-label="Previous product"
-          >
-            <ChevronLeft className="w-6 h-6 lg:w-8 lg:h-8 text-black" />
-          </button>
-      
-          <button
-            onClick={nextProduct}
-            className="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm"
-            aria-label="Next product"
-          >
-            <ChevronRight className="w-6 h-6 lg:w-8 lg:h-8 text-black" />
-          </button>
-        </>
-      )}
-
       <div className="container mx-auto max-w-7xl relative z-20">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Product Image */}
@@ -149,6 +128,29 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Navigation Arrows - Sticky within section */}
+        {products.length > 1 && (
+          <>
+            <button
+              onClick={prevProduct}
+              className="sticky top-1/2 -translate-y-1/2 left-4 lg:left-8 float-left p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm w-fit"
+              aria-label="Previous product"
+              style={{ marginTop: '-50vh' }}
+            >
+              <ChevronLeft className="w-6 h-6 lg:w-8 lg:h-8 text-black" />
+            </button>
+        
+            <button
+              onClick={nextProduct}
+              className="sticky top-1/2 -translate-y-1/2 right-4 lg:right-8 float-right p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm w-fit"
+              aria-label="Next product"
+              style={{ marginTop: '-50vh' }}
+            >
+              <ChevronRight className="w-6 h-6 lg:w-8 lg:h-8 text-black" />
+            </button>
+          </>
+        )}
       </div>
     </section>
   )
