@@ -209,21 +209,18 @@ export default function CategoriesPage() {
               name: product.brand,
               description: "", 
               productCount: 0,
-              subcategories: new Set<string>(),
+              subcategories: [], // Initialize as empty array
               image: product.image,
               href: `/categories/${product.brand}`
             }
             acc.push(categoryEntry)
           }
           categoryEntry.productCount += 1
-          if (product.category) {
-            categoryEntry.subcategories.add(product.category)
+          if (product.category && !categoryEntry.subcategories.includes(product.category)) {
+            categoryEntry.subcategories.push(product.category)
           }
           return acc
-        }, [] as Category[]).map(cat => ({
-          ...cat,
-          subcategories: Array.from(cat.subcategories)
-        }))
+        }, [] as Category[])
 
         setCategories(generatedCategories)
       } catch (error) {
