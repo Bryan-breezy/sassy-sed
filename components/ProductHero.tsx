@@ -23,7 +23,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
   const [isTouching, setIsTouching] = useState(false)
   const [isScrolling, setIsScrolling] = useState(false)
-  const [hideArrowsTimeout, setHideArrowsTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const hideArrowsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Safe product access with fallback
   const product = products?.[currentIndex]
@@ -57,43 +57,85 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
     setTouchStart(e.targetTouches[0].clientX)
     setShowSwipeHint(false)
 
-    if (hideArrowsTimeout) {
-      clearTimeout(hideArrowsTimeout);
+    if (hideArrowsTimeoutRef.current) {
+      clearTimeout(hideArrowsTimeoutRef.current)
     }
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart) return
+    
     setTouchEnd(e.targetTouches[0].clientX)
+    
+    // Swipe detection
+    if (touchStart && touchEnd) {
+      const distance = touchStart - touchEnd
+      const minSwipeDistance = 50
+      
+      if (distance > minSwipeDistance) {
+        nextProduct()
+        setTouchStart(null)
+        setTouchEnd(null)
+      } else if (distance < -minSwipeDistance) {
+        prevProduct()
+        setTouchStart(null)
+        setTouchEnd(null)
+      }
+    }
   }
 
   const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+
+    const distance = touchStart - touchEnd
+    const minSwipeDistance = 50
+
+    if (Math.abs(distance) < minSwipeDistance) return
+
+    if (distance > minSwipeDistance) {
+      nextProduct()
+    } else {
+      prevProduct()
+    }
+
     setTouchStart(null)
     setTouchEnd(null)
 
-    const timeoutId = window.setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setIsTouching(false)
     }, 2000)
-    setHideArrowsTimeout(timeoutId)
+    
+    hideArrowsTimeoutRef.current = timeoutId
   }
 
+  // Scroll detection for mobile arrows
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolling(true)
       
       // Clear any existing timeout
-      if (hideArrowsTimeout !== null) {
-        window.clearTimeout(hideArrowsTimeout)
+      if (hideArrowsTimeoutRef.current !== null) {
+        clearTimeout(hideArrowsTimeoutRef.current)
       }
       
       // Set timeout to hide arrows after 2 seconds
       const timeoutId = setTimeout(() => {
         setIsScrolling(false)
       }, 2000)
-      setHideArrowsTimeout(timeoutId)
+      hideArrowsTimeoutRef.current = timeoutId
     }
     
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (hideArrowsTimeoutRef.current) {
+        clearTimeout(hideArrowsTimeoutRef.current)
+      }
+    }
   }, [])
 
   // Early return for empty products
@@ -237,7 +279,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
           </div>
         )}
 
-        {/* Mobile Indicator Dots */}
+        {/* Mobile Navigation Arrows */}
         {products.length > 1 && (isTouching || isScrolling) && (
           <div className="lg:hidden absolute top-1/2 -translate-y-1/2 w-full flex justify-between z-30 pointer-events-none">
             <button
