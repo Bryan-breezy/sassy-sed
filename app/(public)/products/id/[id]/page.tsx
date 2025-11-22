@@ -24,7 +24,8 @@ interface RGBColor {
   b: number
 }
 
-interface ProductWithColor {
+// Use the existing Product type but make all fields required with defaults
+type ProductWithColor = {
   id: string
   name: string
   brand: string
@@ -62,8 +63,34 @@ export default function ProductDetailPage({ params }: Props) {
           return
         }
 
-        setProduct(productData)
-        setAllProducts(allProductsData)
+        // Transform the product data to match ProductWithColor type with safe defaults
+        const transformedProduct: ProductWithColor = {
+          id: productData.id,
+          name: productData.name || "Unnamed Product",
+          brand: productData.brand || "Unknown Brand",
+          category: productData.category || "Uncategorized",
+          subcategory: productData.subcategory || "",
+          description: productData.description || "",
+          image: productData.image || "/placeholder.svg",
+          sizes: productData.sizes || [],
+          concerns: productData.concerns || [],
+        }
+
+        // Transform all products similarly
+        const transformedAllProducts: ProductWithColor[] = allProductsData.map(p => ({
+          id: p.id,
+          name: p.name || "Unnamed Product",
+          brand: p.brand || "Unknown Brand",
+          category: p.category || "Uncategorized",
+          subcategory: p.subcategory || "",
+          description: p.description || "",
+          image: p.image || "/placeholder.svg",
+          sizes: p.sizes || [],
+          concerns: p.concerns || [],
+        }))
+
+        setProduct(transformedProduct)
+        setAllProducts(transformedAllProducts)
       } catch (error) {
         console.error('Error loading product data:', error)
       } finally {
@@ -77,8 +104,12 @@ export default function ProductDetailPage({ params }: Props) {
   // Dynamically import ColorThief only on client side
   useEffect(() => {
     const loadColorThief = async () => {
-      const ColorThief = (await import('colorthief')).default
-      colorThiefRef.current = new ColorThief()
+      try {
+        const ColorThief = (await import('colorthief')).default
+        colorThiefRef.current = new ColorThief()
+      } catch (error) {
+        console.warn('ColorThief failed to load, using fallback colors')
+      }
     }
     loadColorThief()
   }, [])
@@ -111,7 +142,7 @@ export default function ProductDetailPage({ params }: Props) {
   // Handle main product image load
   const handleMainImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.target as HTMLImageElement
-    if (img.complete) {
+    if (img.complete && colorThiefRef.current) {
       extractColorFromImage(img)
     }
   }
@@ -173,24 +204,26 @@ export default function ProductDetailPage({ params }: Props) {
               </p>
             )}
 
-            <div className="pt-4 border-t border-gray-300">
-              <h3 className={`font-semibold mb-3 text-lg ${textColor}`}>Available In</h3>
-              <div className="flex flex-wrap gap-2">
-                {product.sizes.map((size) => (
-                  <Badge 
-                    key={size} 
-                    variant="outline" 
-                    className={`text-base py-1 px-3 ${
-                      textColor === 'text-white' 
-                        ? 'border-gray-400 text-gray-200' 
-                        : 'border-gray-300 text-gray-700'
-                    }`}
-                  >
-                    {size}
-                  </Badge>
-                ))}
+            {product.sizes.length > 0 && (
+              <div className="pt-4 border-t border-gray-300">
+                <h3 className={`font-semibold mb-3 text-lg ${textColor}`}>Available In</h3>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes.map((size) => (
+                    <Badge 
+                      key={size} 
+                      variant="outline" 
+                      className={`text-base py-1 px-3 ${
+                        textColor === 'text-white' 
+                          ? 'border-gray-400 text-gray-200' 
+                          : 'border-gray-300 text-gray-700'
+                      }`}
+                    >
+                      {size}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {product.description && (
               <div className="mt-6 pt-6 border-t border-gray-300">
@@ -201,24 +234,26 @@ export default function ProductDetailPage({ params }: Props) {
               </div>
             )}
 
-            {/* <div className="pt-4">
-              <h3 className={`font-semibold mb-3 text-lg ${textColor}`}>Benefits</h3>
-              <div className="flex flex-wrap gap-2">
-                {product.concerns.map((concern) => (
-                  <Badge 
-                    key={concern} 
-                    variant="secondary" 
-                    className={`text-base py-1 px-3 ${
-                      textColor === 'text-white' 
-                        ? 'bg-gray-600 text-white' 
-                        : 'bg-gray-200 text-gray-700'
-                    }`}
-                  >
-                    {concern}
-                  </Badge>
-                ))}
+            {product.concerns && product.concerns.length > 0 && (
+              <div className="pt-4">
+                <h3 className={`font-semibold mb-3 text-lg ${textColor}`}>Benefits</h3>
+                <div className="flex flex-wrap gap-2">
+                  {product.concerns.map((concern) => (
+                    <Badge 
+                      key={concern} 
+                      variant="secondary" 
+                      className={`text-base py-1 px-3 ${
+                        textColor === 'text-white' 
+                          ? 'bg-gray-600 text-white' 
+                          : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      {concern}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-            </div> */}
+            )}
           </div>
         </div>
 
