@@ -48,6 +48,7 @@ export default function ProductDetailPage({ params }: Props) {
   const [textColor, setTextColor] = useState("text-gray-900")
   const [mutedTextColor, setMutedTextColor] = useState("text-gray-600")
   const colorThiefRef = useRef<any>(null)
+  const mainImageRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
     const loadData = async () => {
@@ -107,6 +108,11 @@ export default function ProductDetailPage({ params }: Props) {
       try {
         const ColorThief = (await import('colorthief')).default
         colorThiefRef.current = new ColorThief()
+        
+        // If main image is already loaded, extract color immediately
+        if (mainImageRef.current?.complete) {
+          extractColorFromImage(mainImageRef.current)
+        }
       } catch (error) {
         console.warn('ColorThief failed to load, using fallback colors')
       }
@@ -147,6 +153,25 @@ export default function ProductDetailPage({ params }: Props) {
     }
   }
 
+  // Custom ProductImageGallery that accepts onImageLoad prop
+  const CustomProductImageGallery = ({ image, productName }: { image: string; productName: string }) => {
+    return (
+      <div className="space-y-4">
+        <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+          <Image
+            ref={mainImageRef}
+            src={image}
+            alt={productName}
+            fill
+            className="object-contain"
+            onLoad={handleMainImageLoad}
+            crossOrigin="anonymous"
+          />
+        </div>
+      </div>
+    )
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -183,10 +208,10 @@ export default function ProductDetailPage({ params }: Props) {
         </Link>
 
         <div className="grid lg:grid-cols-2 gap-12">
-          <ProductImageGallery
+          {/* Use our custom image gallery that supports onImageLoad */}
+          <CustomProductImageGallery
             image={product.image}
             productName={product.name}
-            onImageLoad={handleMainImageLoad}
           />
 
           <div className="space-y-6">
