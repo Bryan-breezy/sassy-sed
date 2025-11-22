@@ -70,9 +70,9 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
     setTouchStart(null)
     setTouchEnd(null)
 
-    const timeoutId = setTimeout(() => {
-      setIsTouching(false);
-    }, 2000);
+    const timeoutId = window.setTimeout(() => {
+      setIsTouching(false)
+    }, 2000)
     setHideArrowsTimeout(timeoutId)
   }
 
@@ -82,7 +82,7 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
       
       // Clear any existing timeout
       if (hideArrowsTimeout) {
-        clearTimeout(hideArrowsTimeout)
+        window.clearTimeout(hideArrowsTimeout)
       }
       
       // Set timeout to hide arrows after 2 seconds
