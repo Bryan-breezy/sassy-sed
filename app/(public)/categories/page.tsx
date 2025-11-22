@@ -1,3 +1,6 @@
+'use client'
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { 
@@ -18,14 +21,29 @@ const getImageUrl = (imagePath: string) => {
   return data.publicUrl
 }
 
+interface Category {
+  name: string;
+  description: string;
+  productCount: number;
+  subcategories: string[];
+  image: string;
+  href: string;
+}
+
 // Client component for individual category card with color extraction
 function CategoryCard({ 
   category, 
   imageUrl 
 }: { 
-  category: any
+  category: Category
   imageUrl: string 
 }) {
+  const [cardColor, setCardColor] = useState("#e6f9ee")
+  const [textColor, setTextColor] = useState("#1f2937")
+  const [mutedTextColor, setMutedTextColor] = useState("#008000")
+  const [badgeBg, setBadgeBg] = useState("rgba(0,0,0,0.1)")
+  const [badgeBorder, setBadgeBorder] = useState("rgba(0,0,0,0.2)")
+
   const extractColorFromImage = async (img: HTMLImageElement) => {
     return new Promise<{ r: number; g: number; b: number }>((resolve) => {
       const canvas = document.createElement('canvas')
@@ -65,32 +83,19 @@ function CategoryCard({
     try {
       const dominantColor = await extractColorFromImage(img)
       
-      // Update the card's background color
-      const card = img.closest('.category-card')
-      if (card) {
-        (card as HTMLElement).style.backgroundColor = `rgb(${dominantColor.r}, ${dominantColor.g}, ${dominantColor.b})`
-        
-        // Calculate text color based on brightness
-        const brightness = (dominantColor.r * 299 + dominantColor.g * 587 + dominantColor.b * 114) / 1000
-        const textColor: string = brightness > 180 ? '#1f2937' : '#ffffff'
-        const mutedTextColor: string = brightness > 180 ? '#6b7280' : 'rgba(255,255,255,0.8)'
-        const badgeBg: string = brightness > 180 ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'
-        const badgeBorder: string = brightness > 180 ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.3)'
-        
-        // Update text colors
-        const title = card.querySelector('.category-title')
-        const description = card.querySelector('.category-description')
-        const badges = card.querySelectorAll('.category-badge')
-        
-        if (title) (title as HTMLElement).style.color = textColor
-        if (description) (description as HTMLElement).style.color = mutedTextColor
-        badges.forEach(badge => {
-          const badgeElement = badge as HTMLElement
-          badgeElement.style.backgroundColor = badgeBg
-          badgeElement.style.color = textColor
-          badgeElement.style.borderColor = badgeBorder
-        })
-      }
+      // Calculate text color based on brightness
+      const brightness = (dominantColor.r * 299 + dominantColor.g * 587 + dominantColor.b * 114) / 1000
+      const newTextColor = brightness > 180 ? '#1f2937' : '#ffffff'
+      const newMutedTextColor = brightness > 180 ? '#6b7280' : 'rgba(255,255,255,0.8)'
+      const newBadgeBg = brightness > 180 ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'
+      const newBadgeBorder = brightness > 180 ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.3)'
+
+      // Update state with new colors
+      setCardColor(`rgb(${dominantColor.r}, ${dominantColor.g}, ${dominantColor.b})`)
+      setTextColor(newTextColor)
+      setMutedTextColor(newMutedTextColor)
+      setBadgeBg(newBadgeBg)
+      setBadgeBorder(newBadgeBorder)
     } catch (error) {
       console.warn('Failed to extract color for category:', category.name, error)
     }
@@ -99,7 +104,7 @@ function CategoryCard({
   return (
     <Card 
       className="category-card group hover:shadow-xl transition-all duration-300 cursor-pointer border-0"
-      style={{ backgroundColor: "#e6f9ee" }} // Initial fallback color
+      style={{ backgroundColor: cardColor }}
     >
       <Link href={category.href}>
         <div className="relative overflow-hidden rounded-t-lg">
@@ -119,7 +124,7 @@ function CategoryCard({
           <div className="flex items-center justify-between mb-2">
             <CardTitle 
               className="category-title text-xl group-hover:opacity-80 transition-colors"
-              style={{ color: '#1f2937' }} // Initial fallback
+              style={{ color: textColor }}
             >
               {category.name}
             </CardTitle>
@@ -128,9 +133,9 @@ function CategoryCard({
               variant="secondary" 
               className="category-badge text-xs"
               style={{ 
-                backgroundColor: 'rgba(0,0,0,0.1)', 
-                color: '#1f2937',
-                borderColor: 'rgba(0,0,0,0.2)'
+                backgroundColor: badgeBg, 
+                color: textColor,
+                borderColor: badgeBorder
               }}
             >
               {category.productCount} Products
@@ -139,7 +144,7 @@ function CategoryCard({
 
           <CardDescription 
             className="category-description mb-4"
-            style={{ color: '#008000' }} // Initial fallback
+            style={{ color: mutedTextColor }}
           >
             {category.description}
           </CardDescription>
@@ -180,45 +185,65 @@ function CategoryCard({
 }
 
 // --- The Main Page Component ---
-export default async function CategoriesPage() {
-  const allProducts = await getProducts()
-
-  // --- Dynamic Category Generation Logic ---
-  const categories = allProducts.reduce((acc, product) => {
-    let categoryEntry = acc.find(cat => cat.name === product.brand)
-
-    if (!categoryEntry) {
-      categoryEntry = {
-        name: product.brand,
-        description: "", 
-        productCount: 0,
-        subcategories: new Set<string>(),
-        image: product.image,
-        href: `/categories/${product.brand}`
-      }
-      acc.push(categoryEntry)
-    }
-    categoryEntry.productCount += 1
-    if (product.category) {
-      categoryEntry.subcategories.add(product.category)
-    }
-    return acc
-  }, [] as Array<{
-    name: string;
-    description: string;
-    productCount: number;
-    subcategories: Set<string>;
-    image: string;
-    href: string;
-  }>).map(cat => ({
-    ...cat,
-    subcategories: Array.from(cat.subcategories)
-  }))
+export default function CategoriesPage() {
+  const [categories, setCategories] = useState<Category[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const categoryImages: Record<string, string> = {
     "Sedoso": getImageUrl("1758704519280-0.webp"),
     "Dr Mehos": getImageUrl("1758704507883-png.webp"),
     "Saa": getImageUrl("1758704514259-saa__1_.webp"),
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const allProducts = await getProducts()
+        
+        // Dynamic Category Generation Logic
+        const generatedCategories = allProducts.reduce((acc, product) => {
+          let categoryEntry = acc.find(cat => cat.name === product.brand)
+
+          if (!categoryEntry) {
+            categoryEntry = {
+              name: product.brand,
+              description: "", 
+              productCount: 0,
+              subcategories: new Set<string>(),
+              image: product.image,
+              href: `/categories/${product.brand}`
+            }
+            acc.push(categoryEntry)
+          }
+          categoryEntry.productCount += 1
+          if (product.category) {
+            categoryEntry.subcategories.add(product.category)
+          }
+          return acc
+        }, [] as Category[]).map(cat => ({
+          ...cat,
+          subcategories: Array.from(cat.subcategories)
+        }))
+
+        setCategories(generatedCategories)
+      } catch (error) {
+        console.error('Error fetching products:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-600">Loading categories...</h2>
+        </div>
+      </div>
+    )
   }
 
   return (
