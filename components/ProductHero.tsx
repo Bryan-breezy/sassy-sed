@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -16,6 +16,10 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isImageLoaded, setIsImageLoaded] = useState(false)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  const [showSwipeHint, setShowSwipeHint] = useState(true)
+  const sectionRef = useRef<HTMLDivElement>(null)
 
   // Safe product access with fallback
   const product = products?.[currentIndex]
@@ -33,6 +37,42 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   useEffect(() => {
     setIsImageLoaded(false)
   }, [currentIndex])
+
+  // Hide swipe hint after first interaction or timeout
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSwipeHint(false)
+    }, 3000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Touch handlers for swipe gestures
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX)
+    setShowSwipeHint(false)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > 50
+    const isRightSwipe = distance < -50
+
+    if (isLeftSwipe) {
+      nextProduct()
+    } else if (isRightSwipe) {
+      prevProduct()
+    }
+
+    setTouchStart(null)
+    setTouchEnd(null)
+  }
 
   // Early return for empty products
   if (!products?.length) {
@@ -52,7 +92,13 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   }
 
   return (
-    <section className="relative min-h-screen flex items-center p-4 sm:p-8 overflow-hidden">
+    <section 
+      ref={sectionRef}
+      className="relative min-h-screen flex items-center p-4 sm:p-8 overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Background Image */}
       <div className="absolute inset-0 -z-20">
         <Image
@@ -71,6 +117,25 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
           {title}
         </h1>
       </div>
+
+      {/* Swipe Hint Animation - Mobile Only */}
+      {showSwipeHint && products.length > 1 && (
+        <div className="lg:hidden absolute inset-0 z-30 pointer-events-none">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 animate-bounce">
+            <div className="bg-black/50 rounded-full p-3 backdrop-blur-sm">
+              <ChevronLeft className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 animate-bounce" style={{ animationDelay: '0.5s' }}>
+            <div className="bg-black/50 rounded-full p-3 backdrop-blur-sm">
+              <ChevronRight className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full backdrop-blur-sm text-sm">
+            Swipe to navigate
+          </div>
+        </div>
+      )}
 
       <div className="container mx-auto max-w-7xl relative z-20">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
@@ -129,27 +194,43 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
           </div>
         </div>
 
-        {/* Navigation Arrows - Sticky within section */}
+        {/* Desktop Navigation Arrows */}
         {products.length > 1 && (
-          <>
+          <div className="hidden lg:block">
             <button
               onClick={prevProduct}
-              className="sticky top-1/2 -translate-y-1/2 left-4 lg:left-8 float-left p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm w-fit"
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm"
               aria-label="Previous product"
-              style={{ marginTop: '-50vh' }}
             >
-              <ChevronLeft className="w-6 h-6 lg:w-8 lg:h-8 text-black" />
+              <ChevronLeft className="w-8 h-8 text-black" />
             </button>
         
             <button
               onClick={nextProduct}
-              className="sticky top-1/2 -translate-y-1/2 right-4 lg:right-8 float-right p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm w-fit"
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm"
               aria-label="Next product"
-              style={{ marginTop: '-50vh' }}
             >
-              <ChevronRight className="w-6 h-6 lg:w-8 lg:h-8 text-black" />
+              <ChevronRight className="w-8 h-8 text-black" />
             </button>
-          </>
+          </div>
+        )}
+
+        {/* Mobile Indicator Dots */}
+        {products.length > 1 && (
+          <div className="lg:hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3 z-30">
+            {products.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  index === currentIndex 
+                    ? 'bg-white scale-125' 
+                    : 'bg-white/50 hover:bg-white/70'
+                }`}
+                aria-label={`Go to product ${index + 1}`}
+              />
+            ))}
+          </div>
         )}
       </div>
     </section>
