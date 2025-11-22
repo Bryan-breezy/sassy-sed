@@ -21,6 +21,10 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   const [showSwipeHint, setShowSwipeHint] = useState(true)
   const sectionRef = useRef<HTMLDivElement>(null)
 
+  const [isTouching, setIsTouching] = useState(false)
+  const [isScrolling, setIsScrolling] = useState(false)
+  const [hideArrowsTimeout, setHideArrowsTimeout] = useState(null)
+
   // Safe product access with fallback
   const product = products?.[currentIndex]
 
@@ -49,8 +53,13 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
   // Touch handlers for swipe gestures
   const handleTouchStart = (e: React.TouchEvent) => {
+    setIsTouching(true)
     setTouchStart(e.targetTouches[0].clientX)
     setShowSwipeHint(false)
+
+    if (hideArrowsTimeout) {
+      clearTimeout(hideArrowsTimeout);
+    }
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -58,21 +67,34 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   }
 
   const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return
-    
-    const distance = touchStart - touchEnd
-    const isLeftSwipe = distance > 50
-    const isRightSwipe = distance < -50
-
-    if (isLeftSwipe) {
-      nextProduct()
-    } else if (isRightSwipe) {
-      prevProduct()
-    }
-
     setTouchStart(null)
     setTouchEnd(null)
+
+    const timeoutId = setTimeout(() => {
+      setIsTouching(false);
+    }, 2000);
+    setHideArrowsTimeout(timeoutId)
   }
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolling(true)
+      
+      // Clear any existing timeout
+      if (hideArrowsTimeout) {
+        clearTimeout(hideArrowsTimeout)
+      }
+      
+      // Set timeout to hide arrows after 2 seconds
+      const timeoutId = setTimeout(() => {
+        setIsScrolling(false)
+      }, 2000)
+      setHideArrowsTimeout(timeoutId)
+    }
+    
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Early return for empty products
   if (!products?.length) {
@@ -216,25 +238,24 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
         )}
 
         {/* Mobile Indicator Dots */}
-        // Mobile Navigation Arrows
-{products.length > 1 && (
-  <div className="lg:hidden absolute top-1/2 -translate-y-1/2 w-full flex justify-between z-30 pointer-events-none">
-    <button
-      onClick={prevProduct}
-      className="p-4 bg-black/50 rounded-full shadow-2xl hover:scale-110 transition-all pointer-events-auto ml-4"
-      aria-label="Previous product"
-    >
-      <ChevronLeft className="w-6 h-6 text-white" />
-    </button>
-    <button
-      onClick={nextProduct}
-      className="p-4 bg-black/50 rounded-full shadow-2xl hover:scale-110 transition-all pointer-events-auto mr-4"
-      aria-label="Next product"
-    >
-      <ChevronRight className="w-6 h-6 text-white" />
-    </button>
-  </div>
-)}
+        {products.length > 1 && (isTouching || isScrolling) && (
+          <div className="lg:hidden absolute top-1/2 -translate-y-1/2 w-full flex justify-between z-30 pointer-events-none">
+            <button
+              onClick={prevProduct}
+              className="p-4 bg-black/50 rounded-full shadow-2xl hover:scale-110 transition-all pointer-events-auto ml-4"
+              aria-label="Previous product"
+            >
+              <ChevronLeft className="w-6 h-6 text-white" />
+            </button>
+            <button
+              onClick={nextProduct}
+              className="p-4 bg-black/50 rounded-full shadow-2xl hover:scale-110 transition-all pointer-events-auto mr-4"
+              aria-label="Next product"
+            >
+              <ChevronRight className="w-6 h-6 text-white" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )
