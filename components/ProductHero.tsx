@@ -21,8 +21,8 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
   const [showSwipeHint, setShowSwipeHint] = useState(true)
   const sectionRef = useRef<HTMLDivElement>(null)
 
-  const [isTouching, setIsTouching] = useState(false)
-  const [isScrolling, setIsScrolling] = useState(false)
+  const [showMobileArrows, setShowMobileArrows] = useState(false)
+  const [isSectionHovered, setIsSectionHovered] = useState(false)
   const hideArrowsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Safe product access with fallback
@@ -37,51 +37,31 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
     setCurrentIndex(i => i === 0 ? (products?.length ?? 1) - 1 : i - 1)
   }, [products?.length])
 
-  // Reset image loaded state on product change
-  useEffect(() => {
-    setIsImageLoaded(false)
-  }, [currentIndex])
-
-  // Hide swipe hint after first interaction or timeout
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSwipeHint(false)
-    }, 3000)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  // Touch handlers for swipe gestures
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setIsTouching(true)
-    setTouchStart(e.targetTouches[0].clientX)
-    setShowSwipeHint(false)
-
+  // Show mobile arrows temporarily on interaction
+  const showArrowsTemporarily = useCallback(() => {
+    setShowMobileArrows(true)
+    
+    // Clear existing timeout
     if (hideArrowsTimeoutRef.current) {
       clearTimeout(hideArrowsTimeoutRef.current)
     }
+    
+    // Hide arrows after 2 seconds of inactivity
+    hideArrowsTimeoutRef.current = setTimeout(() => {
+      setShowMobileArrows(false)
+    }, 2000)
+  }, [])
+
+  // Handle touch events
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX)
+    setShowSwipeHint(false)
+    showArrowsTemporarily()
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!touchStart) return
-    
     setTouchEnd(e.targetTouches[0].clientX)
-    
-    // Swipe detection
-    if (touchStart && touchEnd) {
-      const distance = touchStart - touchEnd
-      const minSwipeDistance = 50
-      
-      if (distance > minSwipeDistance) {
-        nextProduct()
-        setTouchStart(null)
-        setTouchEnd(null)
-      } else if (distance < -minSwipeDistance) {
-        prevProduct()
-        setTouchStart(null)
-        setTouchEnd(null)
-      }
-    }
   }
 
   const handleTouchEnd = () => {
@@ -100,33 +80,34 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
 
     setTouchStart(null)
     setTouchEnd(null)
-
-    const timeoutId = setTimeout(() => {
-      setIsTouching(false)
-    }, 2000)
-    
-    hideArrowsTimeoutRef.current = timeoutId
   }
 
-  // Scroll detection for mobile arrows
+  // Handle mouse enter/leave for desktop hover
+  const handleMouseEnter = () => {
+    setIsSectionHovered(true)
+  }
+
+  const handleMouseLeave = () => {
+    setIsSectionHovered(false)
+  }
+
+  // Handle click anywhere in section to show arrows
+  const handleSectionClick = () => {
+    showArrowsTemporarily()
+  }
+
+  // Reset image loaded state on product change
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolling(true)
-      
-      // Clear any existing timeout
-      if (hideArrowsTimeoutRef.current !== null) {
-        clearTimeout(hideArrowsTimeoutRef.current)
-      }
-      
-      // Set timeout to hide arrows after 2 seconds
-      const timeoutId = setTimeout(() => {
-        setIsScrolling(false)
-      }, 2000)
-      hideArrowsTimeoutRef.current = timeoutId
-    }
-    
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    setIsImageLoaded(false)
+  }, [currentIndex])
+
+  // Hide swipe hint after first interaction or timeout
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSwipeHint(false)
+    }, 3000)
+
+    return () => clearTimeout(timer)
   }, [])
 
   // Cleanup timeouts on unmount
@@ -162,6 +143,9 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleSectionClick}
     >
       {/* Background Image */}
       <div className="absolute inset-0 -z-20">
@@ -263,7 +247,9 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
           <div className="hidden lg:block">
             <button
               onClick={prevProduct}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm"
+              className={`absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm ${
+                isSectionHovered ? 'opacity-100' : 'opacity-0'
+              }`}
               aria-label="Previous product"
             >
               <ChevronLeft className="w-8 h-8 text-black" />
@@ -271,7 +257,9 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
         
             <button
               onClick={nextProduct}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm"
+              className={`absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-white/90 hover:bg-white rounded-full shadow-2xl hover:scale-110 transition-all z-30 backdrop-blur-sm ${
+                isSectionHovered ? 'opacity-100' : 'opacity-0'
+              }`}
               aria-label="Next product"
             >
               <ChevronRight className="w-8 h-8 text-black" />
@@ -280,18 +268,28 @@ export const ProductHero: React.FC<ProductHeroProps> = ({
         )}
 
         {/* Mobile Navigation Arrows */}
-        {products.length > 1 && (isTouching || isScrolling) && (
-          <div className="lg:hidden absolute top-1/2 -translate-y-1/2 w-full flex justify-between z-30 pointer-events-none">
+        {products.length > 1 && (
+          <div className={`lg:hidden absolute top-1/2 -translate-y-1/2 w-full flex justify-between z-30 pointer-events-none transition-opacity duration-300 ${
+            showMobileArrows ? 'opacity-100' : 'opacity-0'
+          }`}>
             <button
-              onClick={prevProduct}
-              className="p-4 bg-black/50 rounded-full shadow-2xl hover:scale-110 transition-all pointer-events-auto ml-4"
+              onClick={(e) => {
+                e.stopPropagation()
+                prevProduct()
+                showArrowsTemporarily()
+              }}
+              className="p-4 bg-black/50 rounded-full shadow-2xl hover:scale-110 transition-all pointer-events-auto ml-4 backdrop-blur-sm"
               aria-label="Previous product"
             >
               <ChevronLeft className="w-6 h-6 text-white" />
             </button>
             <button
-              onClick={nextProduct}
-              className="p-4 bg-black/50 rounded-full shadow-2xl hover:scale-110 transition-all pointer-events-auto mr-4"
+              onClick={(e) => {
+                e.stopPropagation()
+                nextProduct()
+                showArrowsTemporarily()
+              }}
+              className="p-4 bg-black/50 rounded-full shadow-2xl hover:scale-110 transition-all pointer-events-auto mr-4 backdrop-blur-sm"
               aria-label="Next product"
             >
               <ChevronRight className="w-6 h-6 text-white" />
