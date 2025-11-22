@@ -72,10 +72,10 @@ function CategoryCard({
         
         // Calculate text color based on brightness
         const brightness = (dominantColor.r * 299 + dominantColor.g * 587 + dominantColor.b * 114) / 1000
-        const textColor = brightness > 180 ? '#1f2937' : '#ffffff'
-        const mutedTextColor = brightness > 180 ? '#6b7280' : 'rgba(255,255,255,0.8)'
-        const badgeBg = brightness > 180 ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'
-        const badgeBorder = brightness > 180 ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.3)'
+        const textColor: string = brightness > 180 ? '#1f2937' : '#ffffff'
+        const mutedTextColor: string = brightness > 180 ? '#6b7280' : 'rgba(255,255,255,0.8)'
+        const badgeBg: string = brightness > 180 ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'
+        const badgeBorder: string = brightness > 180 ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.3)'
         
         // Update text colors
         const title = card.querySelector('.category-title')
@@ -85,9 +85,10 @@ function CategoryCard({
         if (title) (title as HTMLElement).style.color = textColor
         if (description) (description as HTMLElement).style.color = mutedTextColor
         badges.forEach(badge => {
-          (badge as HTMLElement).style.backgroundColor = badgeBg
-          (badge as HTMLElement).style.color = textColor
-          (badge as HTMLElement).style.borderColor = badgeBorder
+          const badgeElement = badge as HTMLElement
+          badgeElement.style.backgroundColor = badgeBg
+          badgeElement.style.color = textColor
+          badgeElement.style.borderColor = badgeBorder
         })
       }
     } catch (error) {
