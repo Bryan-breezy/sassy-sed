@@ -33,23 +33,44 @@ export async function GET() {
 
 // --- POST: Upload new media ---
 export async function POST(req: Request) {
-  const formData = await req.formData()
-  const file = formData.get("file") as File
-  
-  if (!file)
-    return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
+  try {
+    console.log("📨 POST request received");
+    
+    const formData = await req.formData();
+    console.log("📋 FormData parsed");
+    
+    const file = formData.get("file") as File;
+    console.log("📄 File retrieved:", file ? {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    } : "No file found");
 
-  const { data, error } = await supabaseAdmin.storage
-    .from(BUCKET)
-    .upload(file.name, file, { upsert: true })
+    if (!file) {
+      console.log("❌ No file uploaded");
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    }
 
-  if (error) {
-    console.error("Supabase Upload Error:", error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.log("🚀 Starting Supabase upload...");
+    const { data, error } = await supabaseAdmin.storage
+      .from(BUCKET)
+      .upload(file.name, file, { upsert: true });
+
+    if (error) {
+      console.error("❌ Supabase Upload Error:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    console.log("✅ Upload successful:", data);
+    return NextResponse.json({ success: true, file: data });
+
+  } catch (error) {
+    console.error("💥 Unexpected error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" }, 
+      { status: 500 }
+    );
   }
-
-  // Supabase returns { path: 'file.name', id: 'uuid' } on success
-  return NextResponse.json({ success: true, file: data })
 }
 
 // --- DELETE: Remove file from storage ---
