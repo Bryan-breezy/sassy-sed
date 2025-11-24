@@ -16,7 +16,7 @@ export default function MediaLibrary() {
   // --- Fetch Media Files ---
   const fetchMedia = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const res = await fetch("/api/admin/media")
       if (!res.ok) throw new Error(`Failed to load media: ${res.status}`)
       const data = await res.json()
@@ -27,7 +27,6 @@ export default function MediaLibrary() {
       setMedia(validMedia)
       setError(null)
     } catch (err: any) {
-      console.error("❌ Error fetching media:", err)
       setError(err.message)
     } finally {
       setLoading(false)
@@ -59,7 +58,6 @@ export default function MediaLibrary() {
       setFile(null)
       await fetchMedia()
     } catch (err: any) {
-      console.error("❌ Upload error:", err)
       alert(`Upload failed: ${err.message}`)
     } finally {
       setUploading(false)
@@ -85,7 +83,6 @@ export default function MediaLibrary() {
 
       setMedia((prev) => prev.filter((f) => f.name !== fileName))
     } catch (err: any) {
-      console.error("❌ Delete error:", err)
       alert(`Delete failed: ${err.message}`)
     } finally {
       setDeleting(null)
