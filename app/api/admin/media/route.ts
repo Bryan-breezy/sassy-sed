@@ -33,43 +33,29 @@ export async function GET() {
 
 // --- POST: Upload new media ---
 export async function POST(req: Request) {
-  try {
-    console.log("📨 POST request received");
+  try {  
+    const formData = await req.formData()
     
-    const formData = await req.formData();
-    console.log("📋 FormData parsed");
-    
-    const file = formData.get("file") as File;
-    console.log("📄 File retrieved:", file ? {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    } : "No file found");
-
+    const file = formData.get("file") as File
     if (!file) {
-      console.log("❌ No file uploaded");
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
     }
 
-    console.log("🚀 Starting Supabase upload...");
     const { data, error } = await supabaseAdmin.storage
       .from(BUCKET)
-      .upload(file.name, file, { upsert: true });
+      .upload(file.name, file, { upsert: true })
 
     if (error) {
-      console.error("❌ Supabase Upload Error:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    console.log("✅ Upload successful:", data);
-    return NextResponse.json({ success: true, file: data });
+    return NextResponse.json({ success: true, file: data })
 
   } catch (error) {
-    console.error("💥 Unexpected error:", error);
     return NextResponse.json(
       { error: "Internal server error" }, 
       { status: 500 }
-    );
+    )
   }
 }
 
