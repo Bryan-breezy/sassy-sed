@@ -16,7 +16,7 @@ const allStores = [
       name: "Panda Mart", 
       address: "Garden City Mall, Thika Road, Nairobi", 
       phone: "0202 311 166", 
-      image: "https://sassyproducts.co.ke/wp-content/uploads/2025/05/Panda-Mart-logo.jpg", 
+      image: "https://hrrjxgbrbynudymzoarw.supabase.co/storage/v1/object/public/uploads/Panda%20Mart.png", 
       location: "Panda Mart", 
       hours: "9:00 AM - 9:00 PM", 
       featured: true, 
@@ -26,7 +26,7 @@ const allStores = [
       id: 2, 
       name: "Magunas", 
       address: "All Outlets", 
-      image: "https://sassyproducts.co.ke/wp-content/uploads/2025/05/magunas.png", 
+      image: "https://hrrjxgbrbynudymzoarw.supabase.co/storage/v1/object/public/uploads/Magunas.png", 
       location: "Magunas", 
       hours: "Varies by location" 
     },
@@ -34,7 +34,7 @@ const allStores = [
       id: 3, 
       name: "Best Lady", 
       address: "All Outlets", 
-      image: "https://sassyproducts.co.ke/wp-content/uploads/2025/05/bestlady.jpeg", 
+      image: "https://hrrjxgbrbynudymzoarw.supabase.co/storage/v1/object/public/uploads/BEstLAdy.jfif", 
       location: "Bestlady", 
       hours: "Varies by location" 
     },
@@ -42,7 +42,7 @@ const allStores = [
       id: 4, 
       name: "Mathais Supermarket", 
       address: "Multiple locations in Central Kenya", 
-      image: "https://sassyproducts.co.ke/wp-content/uploads/2025/05/mathais-logo.jpeg", 
+      image: "https://hrrjxgbrbynudymzoarw.supabase.co/storage/v1/object/public/uploads/Mathais.jfif", 
       location: "Mathais supermarkets", 
       hours: "8:00 AM - 8:00 PM" 
     },
@@ -50,7 +50,7 @@ const allStores = [
       id: 5, 
       name: "Powerstar Supermarket", 
       address: "Eastlands, Nairobi", 
-      image: "https://sassyproducts.co.ke/wp-content/uploads/2025/05/powerstar.png", 
+      image: "https://hrrjxgbrbynudymzoarw.supabase.co/storage/v1/object/public/uploads/Powerstar.png", 
       location: "Powerstar Supermarket", 
       hours: "8:30 AM - 9:00 PM" 
     },
@@ -59,7 +59,7 @@ const allStores = [
       name: "Jamaa Supermarket", 
       address: "Downtown, Nakuru", 
       phone: "0722 123 456", 
-      image: "https://sassyproducts.co.ke/wp-content/uploads/2025/05/jamaa.jpeg", 
+      image: "https://hrrjxgbrbynudymzoarw.supabase.co/storage/v1/object/public/uploads/Jamaa%20(2).png", 
       location: "Jamaa supermarket", 
       hours: "8:00 AM - 8:00 PM", 
     },
