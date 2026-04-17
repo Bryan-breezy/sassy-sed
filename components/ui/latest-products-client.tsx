@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Product } from "@/types"
+import { Skeleton } from "@/components/ui/skeleton"
 import ColorThief from "colorthief"
 
 interface LatestProductsClientProps {
@@ -268,8 +269,8 @@ export function LatestProductsClient({
             <div className="relative w-full max-w-lg h-[400px] sm:h-[500px] lg:h-[650px] overflow-hidden rounded-2xl shadow-2xl">
               {/* Skeleton while loading */}
               {!isImageLoaded && (
-                <div 
-                  className="absolute inset-0 backdrop-blur-sm animate-pulse rounded-2xl transition-all duration-1000"
+                <Skeleton 
+                  className="absolute inset-0 z-10 w-full h-full rounded-2xl transition-all duration-1000"
                   style={{
                     backgroundColor: isColorLoaded 
                       ? `rgba(${dominantColor.r}, ${dominantColor.g}, ${dominantColor.b}, 0.5)`

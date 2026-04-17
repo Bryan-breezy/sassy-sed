@@ -10,6 +10,8 @@ import {
   CardDescription, 
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { CategoryCardSkeleton } from "@/components/CategoryCardSkeleton"
 import { supabase } from '@/lib/supabase-client'
 import { getAllProducts as getProducts } from '@/lib/data'
 
@@ -38,6 +40,7 @@ function CategoryCard({
   category: Category
   imageUrl: string 
 }) {
+  const [isLoaded, setIsLoaded] = useState(false)
   const [cardColor, setCardColor] = useState("#e6f9ee")
   const [textColor, setTextColor] = useState("#1f2937")
   const [mutedTextColor, setMutedTextColor] = useState("#008000")
@@ -108,13 +111,21 @@ function CategoryCard({
     >
       <Link href={category.href}>
         <div className="relative overflow-hidden rounded-t-lg">
+          {!isLoaded && (
+            <Skeleton className="absolute inset-0 z-10 w-full h-full rounded-none" />
+          )}
           <Image
             src={imageUrl || category.image || "/placeholder.svg"}
             alt={category.name}
             width={800}
             height={800}
-            className="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-300"
-            onLoad={handleImageLoad}
+            className={`w-full h-64 object-contain group-hover:scale-105 transition-transform duration-300 ${
+              isLoaded ? "opacity-100" : "opacity-0"
+            }`}
+            onLoad={(e) => {
+              setIsLoaded(true)
+              handleImageLoad(e)
+            }}
             crossOrigin="anonymous"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -235,10 +246,20 @@ export default function CategoriesPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-600">Loading categories...</h2>
-        </div>
+      <div className="min-h-screen bg-white">
+        <section className="py-8 px-4 bg-white">
+          <div className="container mx-auto">
+            <div className="text-center mb-8 lg:mb-10 px-4">
+              <Skeleton className="h-10 w-64 mx-auto mb-3" />
+              <Skeleton className="h-6 w-48 mx-auto" />
+            </div>
+            <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-8">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <CategoryCardSkeleton key={i} />
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
     )
   }

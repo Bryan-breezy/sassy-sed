@@ -1,9 +1,11 @@
 "use client"
 
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Product } from '@/types'
 
 interface ProductCardProps {
@@ -13,16 +15,24 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, index, visibleSizes }: ProductCardProps) {
+  const [isLoaded, setIsLoaded] = useState(false)
+
   return (
     <Card className="group bg-white rounded-xl sm:rounded-2xl shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex flex-col h-full border border-gray-100/80">
       <Link href={`/products/id/${product.id}`} className="flex flex-col h-full">
         {/* Image Container */}
         <div className="relative w-full aspect-square overflow-hidden rounded-t-xl sm:rounded-t-2xl bg-gradient-to-br from-gray-50 to-gray-100/50">
+          {!isLoaded && (
+            <Skeleton className="absolute inset-0 z-10 w-full h-full rounded-none" />
+          )}
           <Image
             src={product.image || "/placeholder.svg"}
             alt={product.name}
             fill
-            className="object-contain p-2 sm:p-3 group-hover:scale-110 transition-transform duration-500 ease-out"
+            className={`object-contain p-2 sm:p-3 group-hover:scale-110 transition-transform duration-500 ease-out ${
+              isLoaded ? "opacity-100" : "opacity-0"
+            }`}
+            onLoad={() => setIsLoaded(true)}
             priority={index < 8}
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
           />

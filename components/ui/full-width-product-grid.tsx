@@ -6,6 +6,7 @@ import Image from 'next/image'
 
 // UI Components
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Search } from "lucide-react"
 import type { Product } from '@/types'
 
@@ -147,12 +148,17 @@ export function FullWidthProductGrid({ initialProducts, categoryName }: {
                   >
                     {/* Image */}
                     <div className="relative bg-white/30 aspect-square flex items-center justify-center p-4">
+                      {!product.isColorLoaded && (
+                        <Skeleton className="absolute inset-0 z-10 w-full h-full rounded-none" />
+                      )}
                       <Image
                         src={product.image || "/placeholder.svg"}
                         alt={product.name}
                         width={200}
                         height={200}
-                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                        className={`w-full h-full object-contain group-hover:scale-105 transition-all duration-500 ${
+                          product.isColorLoaded ? 'opacity-100' : 'opacity-0'
+                        }`}
                         onLoad={(e) => handleImageLoad(product.id, e.target as HTMLImageElement)}
                         crossOrigin="anonymous"
                       />

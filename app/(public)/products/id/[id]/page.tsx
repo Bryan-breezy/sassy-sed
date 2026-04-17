@@ -9,9 +9,11 @@ import { getProductById, getAllProducts } from "@/lib/data"
 
 import { BackToTopButton } from "@/components/ui/back-to-top-button"
 import { ProductImageGallery } from "@/components/product-image-gallery"
+import { ProductDetailSkeleton } from "@/components/ProductDetailSkeleton"
 
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ChevronLeft } from "lucide-react"
 
 interface Props {
@@ -40,6 +42,34 @@ type ProductWithColor = {
 }
 
 // --- The Main Page Component ---
+function RelatedProductCard({ p }: { p: ProductWithColor }) {
+  const [isLoaded, setIsLoaded] = useState(false)
+  return (
+    <Card className="group hover:shadow-lg transition-shadow h-full bg-white/90 backdrop-blur-sm overflow-hidden">
+      <Link href={`/products/id/${p.id}`}>
+        <div className="relative aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
+          {!isLoaded && (
+            <Skeleton className="absolute inset-0 z-10 w-full h-full rounded-none" />
+          )}
+          <Image 
+            src={p.image || "/placeholder.svg"} 
+            alt={p.name} 
+            fill 
+            className={`object-contain p-4 group-hover:scale-105 transition-all duration-500 ${
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            }`} 
+            onLoad={() => setIsLoaded(true)}
+          />
+        </div>
+        <CardHeader className="p-4">
+          <p className="text-sm text-green-600 font-medium">{p.brand}</p>
+          <CardTitle className="text-base line-clamp-2 text-gray-900">{p.name}</CardTitle>
+        </CardHeader>
+      </Link>
+    </Card>
+  )
+}
+
 export default function ProductDetailPage({ params }: Props) {
   const [product, setProduct] = useState<ProductWithColor | null>(null)
   const [allProducts, setAllProducts] = useState<ProductWithColor[]>([])
@@ -155,16 +185,23 @@ export default function ProductDetailPage({ params }: Props) {
 
   // Custom ProductImageGallery that accepts onImageLoad prop
   const CustomProductImageGallery = ({ image, productName }: { image: string; productName: string }) => {
+    const [isLoaded, setIsLoaded] = useState(false)
     return (
       <div className="space-y-4">
         <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+          {!isLoaded && (
+            <Skeleton className="absolute inset-0 z-10 w-full h-full rounded-none" />
+          )}
           <Image
             ref={mainImageRef}
             src={image}
             alt={productName}
             fill
-            className="object-contain"
-            onLoad={handleMainImageLoad}
+            className={`object-contain transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            onLoad={(e) => {
+              setIsLoaded(true)
+              handleMainImageLoad(e)
+            }}
             crossOrigin="anonymous"
           />
         </div>
@@ -173,13 +210,7 @@ export default function ProductDetailPage({ params }: Props) {
   }
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-600">Loading product...</h2>
-        </div>
-      </div>
-    )
+    return <ProductDetailSkeleton />
   }
 
   if (!product) {
@@ -299,22 +330,7 @@ export default function ProductDetailPage({ params }: Props) {
                       key={p.id} 
                       className="flex-none w-[280px] sm:w-[300px] mr-6 snap-start last:mr-0"
                     >
-                      <Card className="group hover:shadow-lg transition-shadow h-full bg-white/90 backdrop-blur-sm">
-                        <Link href={`/products/id/${p.id}`}>
-                          <div className="relative aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
-                            <Image 
-                              src={p.image || "/placeholder.svg"} 
-                              alt={p.name} 
-                              fill 
-                              className="object-contain p-4 group-hover:scale-105 transition-transform" 
-                            />
-                          </div>
-                          <CardHeader className="p-4">
-                            <p className="text-sm text-green-600 font-medium">{p.brand}</p>
-                            <CardTitle className="text-base line-clamp-2 text-gray-900">{p.name}</CardTitle>
-                          </CardHeader>
-                        </Link>
-                      </Card>
+                      <RelatedProductCard p={p} />
                     </div>
                   ))}
                 </div>
@@ -323,22 +339,7 @@ export default function ProductDetailPage({ params }: Props) {
               {/* Desktop Grid */}
               <div className="hidden lg:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {relatedProducts.map((p) => (
-                  <Card key={p.id} className="group hover:shadow-lg transition-shadow bg-white/90 backdrop-blur-sm">
-                    <Link href={`/products/id/${p.id}`}>
-                      <div className="relative aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
-                        <Image 
-                          src={p.image || "/placeholder.svg"} 
-                          alt={p.name} 
-                          fill 
-                          className="object-contain p-4 group-hover:scale-105 transition-transform" 
-                        />
-                      </div>
-                      <CardHeader className="p-4">
-                        <p className="text-sm text-green-600 font-medium">{p.brand}</p>
-                        <CardTitle className="text-base line-clamp-2 text-gray-900">{p.name}</CardTitle>
-                      </CardHeader>
-                    </Link>
-                  </Card>
+                  <RelatedProductCard key={p.id} p={p} />
                 ))}
               </div>
             </div>
