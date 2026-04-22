@@ -25,8 +25,11 @@ class SessionManager {
     const password = process.env.SECRET_COOKIE_PASSWORD
 
     if (!password) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Using development fallback password. Set SECRET_COOKIE_PASSWORD for production.');
+      // Provide a fallback for build time and development to prevent crashes
+      const isBuild = process.env.NEXT_PHASE === 'phase-production-build'
+      const isDev = process.env.NODE_ENV === 'development'
+      
+      if (isDev || isBuild) {
         return 'dev-secret-password-32-chars-minimum-required'.slice(0, 32);
       }
       throw new Error('SECRET_COOKIE_PASSWORD environment variable is required');

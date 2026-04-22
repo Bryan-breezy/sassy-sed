@@ -5,13 +5,12 @@ import { Download, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase } from '@/lib/supabase-client'
 
-const { data: heroImageData } = supabase.storage
+export function HeroSection() {
+  const { data: heroImageData } = supabase.storage
     .from("uploads")
     .getPublicUrl("1757065218649-whatsapp_image_2025_09_05_at_12.16.08_pm.jpeg")
 
-const heroImageUrl = heroImageData?.publicUrl || "/placeholder.svg"
-
-export function HeroSection() {
+  const heroImageUrl = heroImageData?.publicUrl || "/placeholder.svg"
   return (
     <section className="w-full overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px] lg:min-h-[800px]">

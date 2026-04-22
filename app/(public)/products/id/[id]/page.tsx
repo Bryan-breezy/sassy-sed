@@ -13,7 +13,7 @@ import { ProductDetailSkeleton } from "@/components/ProductDetailSkeleton"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ChevronLeft, Sparkles, CheckCircle2, ShieldCheck, Truck } from "lucide-react"
+import { ChevronLeft, Sparkles, CheckCircle2, ShieldCheck, Truck, ArrowRight } from "lucide-react"
 
 interface Props {
   params: Promise<{id: string}>
