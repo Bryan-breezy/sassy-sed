@@ -7,17 +7,21 @@ import { ProductCard } from "./ProductCard"
 import { Pagination } from "./Pagination"
 import { SearchHeader } from "./SearchHeader"
 import { Product } from "@/types"
+import { SearchHeaderSkeleton, FilterSidebarSkeleton, PaginationSkeleton } from "./InteractiveSkeletons"
+import { ProductCardSkeleton } from "./ProductCardSkeleton"
 
 interface ProductGridWithFiltersProps {
   initialProducts: Product[]
   initialCategory?: string
   initialBrand?: string
+  isLoading?: boolean
 }
 
 export function ProductGridWithFilters({
   initialProducts,
   initialCategory,
   initialBrand,
+  isLoading = false,
 }: ProductGridWithFiltersProps) {
   const [allProducts, setAllProducts] = useState<Product[]>(initialProducts)
   const [searchTerm, setSearchTerm] = useState("")
@@ -118,29 +122,45 @@ export function ProductGridWithFilters({
         {/* Sidebar (Desktop Only) */}
         <aside className="hidden lg:block lg:col-span-1">
           <Card className="sticky top-28">
-            <FilterSidebar
-              categories={categories}
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
-            />
+            {isLoading ? (
+              <FilterSidebarSkeleton />
+            ) : (
+              <FilterSidebar
+                categories={categories}
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+              />
+            )}
           </Card>
         </aside>
 
         {/* Main Content */}
         <main className="lg:col-span-3">
-          <SearchHeader
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            categories={categories}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            initialBrand={initialBrand}
-            initialCategory={initialCategory}
-            filteredProductsCount={filteredProducts.length}
-            allProductsCount={allProducts.length}
-          />
+          {isLoading ? (
+            <SearchHeaderSkeleton />
+          ) : (
+            <SearchHeader
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              categories={categories}
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+              initialBrand={initialBrand}
+              initialCategory={initialCategory}
+              filteredProductsCount={filteredProducts.length}
+              allProductsCount={allProducts.length}
+            />
+          )}
 
-          {filteredProducts.length > 0 ? (
+          {isLoading ? (
+            <div
+              className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-${visibleSizes} lg:grid-cols-${visibleSizes} xl:grid-cols-${visibleSizes} gap-2 sm:gap-3 md:gap-4`}
+            >
+              {Array.from({ length: 8 }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : filteredProducts.length > 0 ? (
             <>
               {/* Responsive Grid */}
               <div

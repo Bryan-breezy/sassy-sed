@@ -8,11 +8,16 @@ import { ProductCard } from '@/components/ProductCard'
 interface ProductGridProps {
   featuredProducts?: Product[]
   fetchUrl?: string 
+  isLoading?: boolean
 }
 
-export function ProductGrid({ featuredProducts = [], fetchUrl }: ProductGridProps) {
+export function ProductGrid({ featuredProducts = [], fetchUrl, isLoading = false }: ProductGridProps) {
   const [products, setProducts] = useState<Product[]>(featuredProducts)
-  const [loading, setLoading] = useState(!featuredProducts.length)
+  const [loading, setLoading] = useState(isLoading || (!featuredProducts.length && !!fetchUrl))
+
+  useEffect(() => {
+    setLoading(isLoading)
+  }, [isLoading])
 
   useEffect(() => {
     if (fetchUrl && !featuredProducts.length) {

@@ -1,39 +1,43 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Product } from '@/types'
 import { ProductGrid } from '@/components/ProductGrid'
 import { ProductHero } from '@/components/ProductHero'
-import getAllProducts from "@/lib/getAllProducts"
+import { getAllProducts } from "@/lib/data"
 import { ArrowRight } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 
-export default async function FeaturedProducts() {
-  let featuredProducts: Product[] = []
-  let allProducts: Product[] = []
+export default function FeaturedProducts() {
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+  const [heroProducts, setHeroProducts] = useState<Product[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  try {
-    const productsData = await getAllProducts()
-    
-    if (!Array.isArray(productsData)) {
-      console.error("getAllProducts() did not return an array:", productsData)
-      featuredProducts = []
-      allProducts = []
-    } else {
-      allProducts = productsData
-      featuredProducts = allProducts.filter(p => p.featured).slice(0, 4)
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const allProducts = await getAllProducts()
+        const featured = allProducts.filter(p => p.featured).slice(0, 4)
+        setFeaturedProducts(featured)
+        setHeroProducts(featured)
+      } catch (err) {
+        console.error("Error fetching products:", err)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  } catch (err) {
-    console.error("Error fetching products:", err)
-    featuredProducts = []
-    allProducts = []
-  }
-
-  const heroProducts = allProducts.filter(p => p.featured).slice(0, 4)
+    fetchData()
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50/30">
       
       {/* Auto-switching Product Hero Section */}
-      {heroProducts.length > 0 && (
+      {isLoading ? (
+        <Skeleton className="min-h-screen w-full" />
+      ) : heroProducts.length > 0 && (
         <ProductHero 
           products={heroProducts}
           title="Featured"
@@ -58,7 +62,7 @@ export default async function FeaturedProducts() {
 
           {/* Product Grid */}
           <div className="mb-16">
-            <ProductGrid featuredProducts={featuredProducts} />
+            <ProductGrid featuredProducts={featuredProducts} isLoading={isLoading} />
           </div>
 
           {/* CTA Section */}
