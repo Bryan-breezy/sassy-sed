@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { notFound } from "next/navigation"
@@ -8,25 +8,17 @@ import { notFound } from "next/navigation"
 import { getProductById, getAllProducts } from "@/lib/data"
 
 import { BackToTopButton } from "@/components/ui/back-to-top-button"
-import { ProductImageGallery } from "@/components/product-image-gallery"
 import { ProductDetailSkeleton } from "@/components/ProductDetailSkeleton"
 
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, Sparkles, CheckCircle2, ShieldCheck, Truck } from "lucide-react"
 
 interface Props {
   params: Promise<{id: string}>
 }
 
-interface RGBColor {
-  r: number
-  g: number
-  b: number
-}
-
-// Use the existing Product type but make all fields required with defaults
 type ProductWithColor = {
   id: string
   name: string
@@ -37,33 +29,30 @@ type ProductWithColor = {
   image: string
   sizes: string[]
   concerns: string[]
-  dominantColor?: RGBColor
-  textColorClass?: string
 }
 
-// --- The Main Page Component ---
 function RelatedProductCard({ p }: { p: ProductWithColor }) {
   const [isLoaded, setIsLoaded] = useState(false)
   return (
-    <Card className="group hover:shadow-lg transition-shadow h-full bg-white/90 backdrop-blur-sm overflow-hidden">
+    <Card className="group hover:shadow-2xl transition-all duration-500 h-full bg-white border-stone-100 rounded-[2rem] overflow-hidden hover:-translate-y-2">
       <Link href={`/products/id/${p.id}`}>
-        <div className="relative aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
+        <div className="relative aspect-square bg-stone-50 overflow-hidden p-6">
           {!isLoaded && (
-            <Skeleton className="absolute inset-0 z-10 w-full h-full rounded-none" />
+            <Skeleton className="absolute inset-0 z-10 w-full h-full" />
           )}
           <Image 
             src={p.image || "/placeholder.svg"} 
             alt={p.name} 
             fill 
-            className={`object-contain p-4 group-hover:scale-105 transition-all duration-500 ${
+            className={`object-contain p-4 group-hover:scale-110 transition-all duration-700 ${
               isLoaded ? 'opacity-100' : 'opacity-0'
             }`} 
             onLoad={() => setIsLoaded(true)}
           />
         </div>
-        <CardHeader className="p-4">
-          <p className="text-sm text-green-600 font-medium">{p.brand}</p>
-          <CardTitle className="text-base line-clamp-2 text-gray-900">{p.name}</CardTitle>
+        <CardHeader className="p-6">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 mb-2">{p.brand}</p>
+          <CardTitle className="text-lg font-serif line-clamp-2 text-stone-900 group-hover:text-emerald-800 transition-colors">{p.name}</CardTitle>
         </CardHeader>
       </Link>
     </Card>
@@ -74,11 +63,7 @@ export default function ProductDetailPage({ params }: Props) {
   const [product, setProduct] = useState<ProductWithColor | null>(null)
   const [allProducts, setAllProducts] = useState<ProductWithColor[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [bgColor, setBgColor] = useState("rgb(255, 255, 255)")
-  const [textColor, setTextColor] = useState("text-gray-900")
-  const [mutedTextColor, setMutedTextColor] = useState("text-gray-600")
-  const colorThiefRef = useRef<any>(null)
-  const mainImageRef = useRef<HTMLImageElement>(null)
+  const [isMainImageLoaded, setIsMainImageLoaded] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
@@ -94,7 +79,6 @@ export default function ProductDetailPage({ params }: Props) {
           return
         }
 
-        // Transform the product data to match ProductWithColor type with safe defaults
         const transformedProduct: ProductWithColor = {
           id: productData.id,
           name: productData.name || "Unnamed Product",
@@ -107,7 +91,6 @@ export default function ProductDetailPage({ params }: Props) {
           concerns: productData.concerns || [],
         }
 
-        // Transform all products similarly
         const transformedAllProducts: ProductWithColor[] = allProductsData.map(p => ({
           id: p.id,
           name: p.name || "Unnamed Product",
@@ -132,147 +115,102 @@ export default function ProductDetailPage({ params }: Props) {
     loadData()
   }, [params])
 
-  // Dynamically import ColorThief only on client side
-  useEffect(() => {
-    const loadColorThief = async () => {
-      try {
-        const ColorThief = (await import('colorthief')).default
-        colorThiefRef.current = new ColorThief()
-        
-        // If main image is already loaded, extract color immediately
-        if (mainImageRef.current?.complete) {
-          extractColorFromImage(mainImageRef.current)
-        }
-      } catch (error) {
-        console.warn('ColorThief failed to load, using fallback colors')
-      }
-    }
-    loadColorThief()
-  }, [])
+  if (isLoading) return <ProductDetailSkeleton />
+  if (!product) notFound()
 
-  // Extract color from main product image
-  const extractColorFromImage = (img: HTMLImageElement) => {
-    if (!colorThiefRef.current) return
-
-    try {
-      const color = colorThiefRef.current.getColor(img) as [number, number, number]
-      const dominantColor = {
-        r: color[0],
-        g: color[1],
-        b: color[2]
-      }
-
-      // Calculate text color based on brightness
-      const brightness = (dominantColor.r * 299 + dominantColor.g * 587 + dominantColor.b * 114) / 1000
-      const newTextColor = brightness > 180 ? 'text-gray-900' : 'text-white'
-      const newMutedTextColor = brightness > 180 ? 'text-gray-600' : 'text-gray-300'
-
-      setBgColor(`rgb(${dominantColor.r}, ${dominantColor.g}, ${dominantColor.b})`)
-      setTextColor(newTextColor)
-      setMutedTextColor(newMutedTextColor)
-    } catch (error) {
-      console.warn('Failed to extract color from product image:', error)
-    }
-  }
-
-  // Handle main product image load
-  const handleMainImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const img = e.target as HTMLImageElement
-    if (img.complete && colorThiefRef.current) {
-      extractColorFromImage(img)
-    }
-  }
-
-  // Custom ProductImageGallery that accepts onImageLoad prop
-  const CustomProductImageGallery = ({ image, productName }: { image: string; productName: string }) => {
-    const [isLoaded, setIsLoaded] = useState(false)
-    return (
-      <div className="space-y-4">
-        <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
-          {!isLoaded && (
-            <Skeleton className="absolute inset-0 z-10 w-full h-full rounded-none" />
-          )}
-          <Image
-            ref={mainImageRef}
-            src={image}
-            alt={productName}
-            fill
-            className={`object-contain transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-            onLoad={(e) => {
-              setIsLoaded(true)
-              handleMainImageLoad(e)
-            }}
-            crossOrigin="anonymous"
-          />
-        </div>
-      </div>
-    )
-  }
-
-  if (isLoading) {
-    return <ProductDetailSkeleton />
-  }
-
-  if (!product) {
-    notFound()
-  }
-
-  // related products = same category as current product
   const relatedProducts = allProducts
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4)
 
   return (
-    <div 
-      className="min-h-screen transition-all duration-1000"
-      style={{ backgroundColor: bgColor }}
-    >
-      <main className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-[#FDFCFB]">
+      <main className="container mx-auto px-4 py-12 lg:py-20">
         <Link 
           href="/products" 
-          className={`inline-flex items-center mb-6 hover:opacity-80 transition-opacity ${
-            textColor === 'text-white' ? 'text-gray-200' : 'text-green-600'
-          }`}
+          className="inline-flex items-center mb-12 text-stone-500 hover:text-emerald-700 transition-colors font-medium group"
         >
-          <ChevronLeft className="w-4 h-4 mr-1" />
-          Back to All Products
+          <div className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center mr-3 group-hover:border-emerald-200 group-hover:bg-emerald-50 transition-all">
+            <ChevronLeft className="w-4 h-4" />
+          </div>
+          Back to Collection
         </Link>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Use our custom image gallery that supports onImageLoad */}
-          <CustomProductImageGallery
-            image={product.image}
-            productName={product.name}
-          />
+        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+          {/* Image Section */}
+          <div className="relative aspect-square bg-white rounded-[3rem] shadow-2xl shadow-stone-200/50 border border-stone-100 p-12 lg:p-20 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-stone-50 to-transparent opacity-50" />
+            {!isMainImageLoaded && (
+              <Skeleton className="absolute inset-0 z-10 w-full h-full" />
+            )}
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className={`object-contain p-8 transition-all duration-1000 ease-out group-hover:scale-110 ${
+                isMainImageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
+              }`}
+              onLoad={() => setIsMainImageLoaded(true)}
+              priority
+            />
+            <div className="absolute bottom-8 left-8 right-8 flex justify-center">
+              <div className="bg-white/80 backdrop-blur-md px-6 py-3 rounded-2xl shadow-lg border border-white flex items-center gap-3">
+                <Sparkles className="w-5 h-5 text-emerald-600" />
+                <span className="text-sm font-medium text-stone-800">100% Natural Ingredients</span>
+              </div>
+            </div>
+          </div>
 
-          <div className="space-y-6">
-            <p className={`text-sm font-medium ${
-              textColor === 'text-white' ? 'text-gray-300' : 'text-green-600'
-            }`}>
-              {product.brand}
-            </p>
-            <h1 className={`text-3xl md:text-4xl font-bold ${textColor}`}>
-              {product.name}
-            </h1>
-            {product.subcategory && (
-              <p className={`text-lg ${mutedTextColor}`}>
-                {product.subcategory}
-              </p>
+          {/* Info Section */}
+          <div className="space-y-10">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100">
+                <span className="w-2 h-2 bg-emerald-500 rounded-full" />
+                <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">{product.brand}</span>
+              </div>
+              <h1 className="text-4xl md:text-6xl font-serif font-medium text-stone-900 leading-tight">
+                {product.name}
+              </h1>
+              {product.subcategory && (
+                <p className="text-xl text-stone-500 font-light italic">
+                  {product.subcategory}
+                </p>
+              )}
+            </div>
+
+            {/* Features Grid */}
+            <div className="grid grid-cols-3 gap-4 py-8 border-y border-stone-100">
+              <div className="flex flex-col items-center text-center space-y-2">
+                <ShieldCheck className="w-6 h-6 text-emerald-600" />
+                <span className="text-[10px] uppercase tracking-widest text-stone-500 font-bold">Skin Safe</span>
+              </div>
+              <div className="flex flex-col items-center text-center space-y-2">
+                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                <span className="text-[10px] uppercase tracking-widest text-stone-500 font-bold">Tested</span>
+              </div>
+              <div className="flex flex-col items-center text-center space-y-2">
+                <Truck className="w-6 h-6 text-emerald-600" />
+                <span className="text-[10px] uppercase tracking-widest text-stone-500 font-bold">Fast Delivery</span>
+              </div>
+            </div>
+
+            {product.description && (
+              <div className="space-y-4">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-stone-900">About the product</h2>
+                <p className="text-lg text-stone-600 leading-relaxed font-light">
+                  {product.description}
+                </p>
+              </div>
             )}
 
             {product.sizes.length > 0 && (
-              <div className="pt-4 border-t border-gray-300">
-                <h3 className={`font-semibold mb-3 text-lg ${textColor}`}>Available In</h3>
-                <div className="flex flex-wrap gap-2">
+              <div className="space-y-4">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-stone-900">Available Sizes</h2>
+                <div className="flex flex-wrap gap-3">
                   {product.sizes.map((size) => (
                     <Badge 
                       key={size} 
                       variant="outline" 
-                      className={`text-base py-1 px-3 ${
-                        textColor === 'text-white' 
-                          ? 'border-gray-400 text-gray-200' 
-                          : 'border-gray-300 text-gray-700'
-                      }`}
+                      className="text-base py-2 px-6 rounded-xl border-stone-200 text-stone-700 bg-white hover:border-emerald-300 hover:bg-emerald-50 transition-all cursor-default"
                     >
                       {size}
                     </Badge>
@@ -281,31 +219,17 @@ export default function ProductDetailPage({ params }: Props) {
               </div>
             )}
 
-            {product.description && (
-              <div className="mt-6 pt-6 border-t border-gray-300">
-                <h2 className={`text-lg font-bold ${textColor}`}>Description</h2>
-                <div className={`prose prose-lg mt-4 ${mutedTextColor}`}>
-                  {product.description}
-                </div>
-              </div>
-            )}
-
             {product.concerns && product.concerns.length > 0 && (
-              <div className="pt-4">
-                <h3 className={`font-semibold mb-3 text-lg ${textColor}`}>Benefits</h3>
-                <div className="flex flex-wrap gap-2">
+              <div className="space-y-4">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-stone-900">Key Benefits</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {product.concerns.map((concern) => (
-                    <Badge 
-                      key={concern} 
-                      variant="secondary" 
-                      className={`text-base py-1 px-3 ${
-                        textColor === 'text-white' 
-                          ? 'bg-gray-600 text-white' 
-                          : 'bg-gray-200 text-gray-700'
-                      }`}
-                    >
-                      {concern}
-                    </Badge>
+                    <div key={concern} className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-stone-50 shadow-sm">
+                      <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      </div>
+                      <span className="text-stone-700 font-medium">{concern}</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -313,35 +237,24 @@ export default function ProductDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* --- Related Products Section --- */}
+        {/* Related Products Section */}
         {relatedProducts.length > 0 && (
-          <div className="mt-16 pt-12 border-t border-gray-300">
-            <h2 className={`text-2xl font-bold mb-8 ${textColor}`}>
-              You Might Also Like
-            </h2>
+          <div className="mt-32">
+            <div className="flex items-end justify-between mb-12">
+              <div className="space-y-4">
+                <h2 className="text-emerald-700 font-bold tracking-[0.2em] uppercase text-sm">Discover More</h2>
+                <h3 className="text-3xl md:text-5xl font-serif font-medium text-stone-900">You Might Also Like</h3>
+              </div>
+              <Link href="/products" className="hidden sm:flex items-center gap-2 text-stone-500 hover:text-emerald-700 transition-colors font-medium">
+                View All Collection
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
             
-            {/* Mobile Slider / Desktop Grid */}
-            <div className="relative">
-              {/* Mobile Slider */}
-              <div className="lg:hidden">
-                <div className="flex overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide">
-                  {relatedProducts.map((p) => (
-                    <div 
-                      key={p.id} 
-                      className="flex-none w-[280px] sm:w-[300px] mr-6 snap-start last:mr-0"
-                    >
-                      <RelatedProductCard p={p} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Desktop Grid */}
-              <div className="hidden lg:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {relatedProducts.map((p) => (
-                  <RelatedProductCard key={p.id} p={p} />
-                ))}
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {relatedProducts.map((p) => (
+                <RelatedProductCard key={p.id} p={p} />
+              ))}
             </div>
           </div>
         )}

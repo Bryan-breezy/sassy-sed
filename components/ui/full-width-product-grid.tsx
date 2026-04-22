@@ -6,215 +6,131 @@ import Image from 'next/image'
 
 // UI Components
 import { Input } from "@/components/ui/input"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Search } from "lucide-react"
+import { Search, ArrowUpRight } from "lucide-react"
 import type { Product } from '@/types'
-
-interface RGBColor {
-  r: number
-  g: number
-  b: number
-}
-
-interface ProductWithColor extends Product {
-  dominantColor?: RGBColor
-  isColorLoaded?: boolean
-  textColorClass?: string
-}
 
 export function FullWidthProductGrid({ initialProducts, categoryName }: {
   initialProducts: Product[]
   categoryName: string
 }) {
   const [searchTerm, setSearchTerm] = useState("")
-  const [productsWithColors, setProductsWithColors] = useState<ProductWithColor[]>(
-    initialProducts.map(product => ({
-      ...product,
-      dominantColor: { r: 248, g: 250, b: 252 }, // Default light gray
-      isColorLoaded: false,
-      textColorClass: 'text-gray-900'
-    }))
-  )
 
   const filteredProducts = useMemo(() => {
-    if (searchTerm.trim() === '') return productsWithColors
+    if (searchTerm.trim() === '') return initialProducts
     
-    return productsWithColors.filter((product) =>
+    return initialProducts.filter((product) =>
       [product.name, product.category, product.subcategory]
         .join(" ")
         .toLowerCase()
         .includes(searchTerm.toLowerCase())
     )
-  }, [productsWithColors, searchTerm])
-
-  // Calculate text color based on background brightness
-  const getTextColor = (rgb: RGBColor) => {
-    const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000
-    return brightness > 180 ? 'text-gray-900' : 'text-white'
-  }
-
-  // Handle image load for color extraction
-  const handleImageLoad = (productId: string, img: HTMLImageElement) => {
-    try {
-      // Simple color extraction from the image
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-
-      canvas.width = img.naturalWidth
-      canvas.height = img.naturalHeight
-      ctx.drawImage(img, 0, 0)
-
-      // Get image data and calculate average color
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const data = imageData.data
-
-      let r = 0, g = 0, b = 0
-      const pixelCount = data.length / 4
-
-      for (let i = 0; i < data.length; i += 4) {
-        r += data[i]
-        g += data[i + 1]
-        b += data[i + 2]
-      }
-
-      const dominantColor = {
-        r: Math.round(r / pixelCount),
-        g: Math.round(g / pixelCount),
-        b: Math.round(b / pixelCount)
-      }
-
-      const textColorClass = getTextColor(dominantColor)
-
-      setProductsWithColors(prev => 
-        prev.map(product => 
-          product.id === productId 
-            ? { 
-                ...product, 
-                dominantColor, 
-                isColorLoaded: true, 
-                textColorClass 
-              }
-            : product
-        )
-      )
-    } catch (error) {
-      console.warn('Failed to extract color for product:', productId, error)
-      // Keep default colors if extraction fails
-    }
-  }
+  }, [initialProducts, searchTerm])
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <main>
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{categoryName} Products</h1>
-          <p className="text-gray-600 mb-6">
-            Explore our complete collection of {categoryName.toLowerCase()} products.
-          </p>
+    <div className="bg-stone-50/50 min-h-screen">
+      <div className="container mx-auto px-4 py-12 lg:py-20">
+        <main>
+          {/* Page Header */}
+          <div className="mb-12 text-center lg:text-left">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+              <div className="space-y-4">
+                <h1 className="text-4xl lg:text-6xl font-serif font-medium text-stone-900">{categoryName}</h1>
+                <p className="text-lg text-stone-600 max-w-xl font-light">
+                  Explore our complete collection of {categoryName.toLowerCase()} products, 
+                  crafted with natural ingredients for your daily care.
+                </p>
+              </div>
 
-          {/* Search and Sort Bar */}
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="relative flex-1 w-full md:max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <Input
-                placeholder={`Search in ${categoryName}...`}
-                className="pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+              {/* Search Bar */}
+              <div className="relative w-full lg:max-w-md group">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-stone-400 w-5 h-5 transition-colors group-focus-within:text-emerald-600" />
+                <Input
+                  placeholder={`Search in ${categoryName}...`}
+                  className="pl-12 py-6 bg-white border-stone-200 rounded-2xl shadow-sm focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <p className="text-gray-600 mb-6">
-          Showing {filteredProducts.length} of {initialProducts.length} products
-        </p>
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-px flex-1 bg-stone-200" />
+            <p className="text-sm font-medium text-stone-500 uppercase tracking-widest">
+              {filteredProducts.length} Products Found
+            </p>
+            <div className="h-px flex-1 bg-stone-200" />
+          </div>
 
-        {/* Products Grid */}
-        {filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="group cursor-pointer">
-                <Link href={`/products/id/${product.id}`} className="block">
-                  <div 
-                    className="rounded-lg border border-gray-200 hover:border-rose-200 hover:shadow-xl transition-all duration-300 overflow-hidden"
-                    style={{
-                      backgroundColor: product.isColorLoaded 
-                        ? `rgb(${product.dominantColor!.r}, ${product.dominantColor!.g}, ${product.dominantColor!.b})`
-                        : '#f8fafc'
-                    }}
-                  >
-                    {/* Image */}
-                    <div className="relative bg-white/30 aspect-square flex items-center justify-center p-4">
-                      {!product.isColorLoaded && (
-                        <Skeleton className="absolute inset-0 z-10 w-full h-full rounded-none" />
-                      )}
+          {/* Products Grid */}
+          {filteredProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {filteredProducts.map((product) => (
+                <Link key={product.id} href={`/products/id/${product.id}`} className="group">
+                  <div className="bg-white rounded-[2rem] border border-stone-100 p-6 transition-all duration-500 hover:shadow-2xl hover:shadow-stone-200/50 hover:-translate-y-2 flex flex-col h-full">
+                    {/* Image Container */}
+                    <div className="relative aspect-square mb-6 bg-stone-50 rounded-[1.5rem] overflow-hidden flex items-center justify-center p-8">
                       <Image
                         src={product.image || "/placeholder.svg"}
                         alt={product.name}
-                        width={200}
-                        height={200}
-                        className={`w-full h-full object-contain group-hover:scale-105 transition-all duration-500 ${
-                          product.isColorLoaded ? 'opacity-100' : 'opacity-0'
-                        }`}
-                        onLoad={(e) => handleImageLoad(product.id, e.target as HTMLImageElement)}
-                        crossOrigin="anonymous"
+                        width={300}
+                        height={300}
+                        className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
                       />
+                      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg">
+                          <ArrowUpRight className="w-5 h-5 text-emerald-600" />
+                        </div>
+                      </div>
                     </div>
                     
                     {/* Content */}
-                    <div className="p-3">
-                      <span 
-                        className="inline-block text-xs bg-black/10 px-2 py-1 rounded mb-2 transition-colors"
-                        style={{
-                          color: product.isColorLoaded 
-                            ? product.textColorClass === 'text-white' 
-                              ? 'rgba(255,255,255,0.9)'
-                              : 'rgba(0,0,0,0.7)'
-                            : '#6b7280'
-                        }}
-                      >
-                        {product.brand}
-                      </span>
-                      <h3 
-                        className="font-medium line-clamp-2 text-sm mb-1 transition-colors group-hover:opacity-80"
-                        style={{
-                          color: product.isColorLoaded 
-                            ? product.textColorClass === 'text-white' 
-                              ? 'white'
-                              : '#1f2937'
-                            : '#1f2937'
-                        }}
-                      >
+                    <div className="space-y-3 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                          {product.brand}
+                        </span>
+                      </div>
+                      <h3 className="font-serif text-xl text-stone-900 group-hover:text-emerald-800 transition-colors line-clamp-2">
                         {product.name}
                       </h3>
-                      <p 
-                        className="text-xs line-clamp-1 transition-colors"
-                        style={{
-                          color: product.isColorLoaded 
-                            ? product.textColorClass === 'text-white' 
-                              ? 'rgba(255,255,255,0.8)'
-                              : 'rgba(0,0,0,0.6)'
-                            : '#6b7280'
-                        }}
-                      >
+                      <p className="text-sm text-stone-500 font-light line-clamp-1">
                         {product.subcategory}
                       </p>
                     </div>
+
+                    <div className="pt-6 mt-auto border-t border-stone-50">
+                      <span className="text-sm font-medium text-stone-900 group-hover:text-emerald-700 transition-colors flex items-center gap-2">
+                        View Details
+                        <div className="h-px w-4 bg-stone-300 group-hover:w-8 group-hover:bg-emerald-600 transition-all duration-300" />
+                      </span>
+                    </div>
                   </div>
                 </Link>
+              ))}
+            </div>
+          ): (
+            <div className="text-center py-24 bg-white rounded-[3rem] border border-stone-100">
+              <div className="max-w-md mx-auto space-y-4">
+                <div className="w-20 h-20 bg-stone-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Search className="w-10 h-10 text-stone-300" />
+                </div>
+                <h3 className="text-2xl font-serif text-stone-900">No products found</h3>
+                <p className="text-stone-500 font-light">
+                  We couldn't find any products matching "{searchTerm}". 
+                  Try checking your spelling or using different keywords.
+                </p>
+                <button 
+                  onClick={() => setSearchTerm("")}
+                  className="text-emerald-700 font-medium hover:underline pt-4"
+                >
+                  Clear search and view all
+                </button>
               </div>
-            ))}
-          </div>
-        ): (
-          <div className="col-span-full text-center text-gray-500 py-12">
-            <h3 className="text-xl font-semibold">No products found</h3>
-            <p className="mt-2">No products in this category match your search term.</p>
-          </div>
-        )}
-      </main>
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 }
