@@ -66,15 +66,7 @@ export function HeroSection() {
       <div className="relative z-10 flex flex-col lg:grid lg:grid-cols-2 lg:min-h-screen">
 
         {/* ══ IMAGE — top on mobile, right column on desktop ══ */}
-        <div
-          className="
-            relative order-1 lg:order-2
-            w-full
-            h-[56vw] min-h-[260px] max-h-[480px]
-            sm:h-[60vw] sm:max-h-[520px]
-            lg:h-auto lg:max-h-none
-          "
-        >
+        <div className="relative order-1 lg:order-2 w-full h-[56vw] min-h-[260px] max-h-[480px] sm:h-[60vw] sm:max-h-[520px] lg:h-auto lg:max-h-none">
           <div className="image-panel fade-up" style={{ animationDelay: "60ms" }}>
             <Image
               src={heroImageUrl}
@@ -86,11 +78,7 @@ export function HeroSection() {
             />
 
             {/* Bottom-to-top fade on mobile so copy reads over image edge */}
-            <div className="
-              absolute inset-0
-              bg-gradient-to-t from-[#F5F2ED]/60 via-transparent to-transparent
-              lg:bg-gradient-to-r lg:from-[#F5F2ED] lg:via-[#F5F2ED]/10 lg:to-transparent
-            " />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#F5F2ED]/60 via-transparent to-transparent lg:bg-gradient-to-r lg:from-[#F5F2ED] lg:via-[#F5F2ED]/10 lg:to-transparent" />
 
             {/* Floating badge */}
             <div className="badge fade-up" style={{ animationDelay: "500ms" }}>
@@ -110,16 +98,7 @@ export function HeroSection() {
         </div>
 
         {/* ══ COPY — below image on mobile, left column on desktop ══ */}
-        <div
-          className="
-            flex flex-col justify-center order-2 lg:order-1
-            px-5 sm:px-10 lg:px-16 xl:px-20 2xl:px-28
-            pt-8 pb-14
-            sm:pt-10 sm:pb-16
-            lg:py-0
-            text-center lg:text-left
-          "
-        >
+        <div className="flex flex-col justify-center order-2 lg:order-1 px-5 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 pt-8 pb-14 sm:pt-10 sm:pb-16 lg:py-0 text-center lg:text-left">
           {/* Eyebrow */}
           <div
             className="flex items-center justify-center lg:justify-start gap-3 mb-6 fade-up"
@@ -158,32 +137,14 @@ export function HeroSection() {
               href="https://sassyproducts.co.ke/wp-content/uploads/2025/05/WIP_Sedoso-Catalog-09092024_compressed.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="
-                group flex items-center justify-center gap-2.5
-                w-full sm:w-auto
-                px-7 py-3.5 sm:py-4
-                rounded-full text-sm font-semibold tracking-wide
-                text-white bg-stone-900 hover:bg-emerald-900
-                transition-colors duration-300
-                shadow-xl shadow-stone-900/10
-                min-h-[48px]
-              "
+              className="group flex items-center justify-center gap-2.5 w-full sm:w-auto px-7 py-3.5 sm:py-4 rounded-full text-sm font-semibold tracking-wide text-white bg-stone-900 hover:bg-emerald-900 transition-colors duration-300 shadow-xl shadow-stone-900/10 min-h-[48px]"
             >
               <Download className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               Download Catalogue
             </a>
             <a
               href="#products"
-              className="
-                flex items-center justify-center gap-2.5
-                w-full sm:w-auto
-                px-7 py-3.5 sm:py-4
-                rounded-full text-sm font-semibold tracking-wide
-                text-stone-700 border border-stone-200
-                hover:border-emerald-300 hover:text-emerald-800
-                transition-colors duration-300
-                min-h-[48px]
-              "
+              className="flex items-center justify-center gap-2.5 w-full sm:w-auto px-7 py-3.5 sm:py-4 rounded-full text-sm font-semibold tracking-wide text-stone-700 border border-stone-200 hover:border-emerald-300 hover:text-emerald-800 transition-colors duration-300 min-h-[48px]"
             >
               View Products
             </a>
