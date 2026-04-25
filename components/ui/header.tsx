@@ -12,7 +12,6 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 
 import {
@@ -45,6 +44,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
 
+  // Handle scroll effect for the header
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
@@ -53,19 +53,18 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
   
-  // Stuff to do when Header component loads
+  // Fetch and structure product data for the menu
   useEffect(() => {
     const fetchAndStructureData = async () => {
-      // Loading screen(skeleton) to display as data is being loaded
       setIsLoading(true)
       
       try {
         const response = await fetch('/api/products')
         if (response.ok) {
           const products: Product[] = await response.json()
-          const structuredData: { [key: string]: Set<string> } = {}
-
+          
           if (Array.isArray(products)) {
+            // FIX: Removed duplicate const declaration here
             const structuredData: { [key: string]: Set<string> } = {}
 
             products.forEach(product => {
@@ -73,29 +72,29 @@ export function Header() {
               (structuredData[product.brand] ||= new Set<string>()).add(product.category)
             })
             
-          //convert {{ "Sedoso" : "haircare" },{..}} into [[ "Sedoso", "haircare" ], [...]]
-          const menuArray = Object.entries(structuredData)
-                                  .map(([brandName, categorySet]) => {
-            // Dr. Mehos,Dr-Mehos, Dr Mehos -> dr-mehos
-            const brandSlug = encodeURIComponent(
-              brandName
-                .toLowerCase()
-                .replace(/[^\w\s-]/g, '') //Remove punctuations( full stops, commas,... )
-                .replace(/\s+/g, '-')  //Spaces to dashes
-            )
-             //menuArray -> {name: Sedoso, categories: Haircare: { name: Curl: href: /products/sedoso/haircare },...}                     
-            return {
-              name: brandName,
-              categories: Array.from(categorySet).sort().map(categoryName => {
-                const categorySlug = encodeURIComponent(categoryName.toLowerCase().replace(/\s+/g, '-'))
-                return { 
-                  name: categoryName, 
-                  href: `/products/${brandSlug}/${categorySlug}` 
+            const menuArray = Object.entries(structuredData)
+              .map(([brandName, categorySet]) => {
+                const brandSlug = encodeURIComponent(
+                  brandName
+                    .toLowerCase()
+                    .replace(/[^\w\s-]/g, '') 
+                    .replace(/\s+/g, '-')  
+                )
+                     
+                return {
+                  name: brandName,
+                  categories: Array.from(categorySet).sort().map(categoryName => {
+                    const categorySlug = encodeURIComponent(categoryName.toLowerCase().replace(/\s+/g, '-'))
+                    return { 
+                      name: categoryName, 
+                      href: `/products/${brandSlug}/${categorySlug}` 
+                    }
+                  })
                 }
-              })
-            }
-          }).sort((a, b) => a.name.localeCompare(b.name)) //localeCompare -> Compares which brand comes first alphabetically
-          setMenuData(menuArray)
+              }).sort((a, b) => a.name.localeCompare(b.name)) 
+
+            setMenuData(menuArray)
+          }
         }
       } catch (error) {
         console.error('Error fetching menu data:', error)
@@ -104,8 +103,9 @@ export function Header() {
       }
     }
     fetchAndStructureData()
-  }, []) // [] -> executes only when hovering
+  }, [])
 
+  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden'
@@ -115,7 +115,7 @@ export function Header() {
     return () => {
       document.body.style.overflow = 'auto'
     }
-  }, [isMobileMenuOpen]) // [isMobileMenuOpen] -> executes when dropdown is on
+  }, [isMobileMenuOpen])
 
   const staticNavLinks = [
     { href: "/about", label: "About us" },
@@ -146,9 +146,8 @@ export function Header() {
         `}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-
-          {/* logo */}
           <div className="flex h-12 items-center justify-between">
+            {/* Logo */}
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center relative z-50">
               <Image 
                 src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${process.env.NEXT_PUBLIC_BUCKET_NAME}/1758702949667-sassy_logo_trans.webp`}
@@ -160,7 +159,7 @@ export function Header() {
               />
             </Link>
 
-            {/* Header links ( hidden on small screens ie phones and tablets) */}
+            {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center">
               <NavigationMenu>
                 <NavigationMenuList className="flex gap-1">
@@ -215,81 +214,43 @@ export function Header() {
               </NavigationMenu>
             </div>
 
-      {/* Mobile Menu - Immersive Apple Style */}
-      <div 
-        className={`fixed inset-0 z-[40] lg:hidden transition-all duration-500 ${
-          isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-        }`}
-      >
-        <div className="absolute inset-0 bg-white" />
-        <div className="relative h-full flex flex-col pt-24 px-8 overflow-y-auto">
-          <nav className="space-y-8 pb-20">
-            <Link 
-              href="/products" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block text-4xl font-bold tracking-tight text-gray-900 hover:text-emerald-600 transition-colors"
-            >
-              All Products
-            </Link>
-            
-            <div className="space-y-6">
-              {menuData.map((brand) => (
-                <div key={brand.name} className="space-y-4">
-                  <h3 className="text-[10px] font-bold tracking-[0.2em] text-emerald-600 uppercase">{brand.name}</h3>
-                  <div className="grid grid-cols-1 gap-3">
-                    {brand.categories.map((category) => (
-                      <Link
-                        key={category.name}
-                        href={category.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-xl text-zinc-500 hover:text-zinc-900 transition-colors"
-                      >
-                        {category.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ))}
+            {/* FIX: Mobile Menu Trigger (Hamburger Icon) */}
+            <div className="lg:hidden flex items-center">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsMobileMenuOpen(true)}
+                aria-label="Open mobile menu"
+                className="hover:bg-zinc-100 rounded-full text-zinc-800"
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
             </div>
 
-            <div className="pt-8 border-t border-zinc-100 space-y-6">
-              {staticNavLinks.map(link => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block text-2xl font-bold text-gray-900 hover:text-emerald-600 transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </nav>
-        </div>
-      </div>
           </div>
         </div>
       </header>
 
-      {/* Mobile Menu (Visible on tablets only) */}
+      {/* FIX: Unified Mobile Menu Drawer */}
       <div 
         aria-hidden={!isMobileMenuOpen} 
-        className={`fixed inset-0 z-50 hidden md:block lg:hidden transition-opacity duration-500 ease-in-out ${
+        className={`fixed inset-0 z-[60] lg:hidden transition-opacity duration-500 ease-in-out ${
              isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        {/* Backdrop: Fills the entire screen(inset-0), closes the menu on click */}
+        {/* Backdrop overlay */}
         <div
           className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-500 ease-in-out"
           onClick={() => setIsMobileMenuOpen(false)}
         />
 
+        {/* Drawer content */}
         <div 
           className={`absolute right-0 w-full max-w-xs h-full bg-white shadow-2xl flex flex-col transform transition-transform duration-500 ease-in-out ${
               isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
-          {/* Header/Close Button */}
+          {/* Drawer Header */}
           <div className="flex items-center justify-between border-b px-6 py-4 bg-green-50">
               <Image
                   src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${process.env.NEXT_PUBLIC_BUCKET_NAME}/1758702949667-sassy_logo_trans.webp`}
@@ -309,10 +270,8 @@ export function Header() {
               </Button>
           </div>
           
-          {/* Scrollable Menu Content */}
+          {/* Drawer Links */}
           <div className="flex-1 overflow-y-auto p-6 space-y-8"> 
-              
-              {/* Products Section */}
               <div>
                   <h2 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">
                     Products
@@ -320,10 +279,9 @@ export function Header() {
                   {isLoading ? (
                       <div className="flex items-center justify-center py-8">
                           <div className="animate-spin rounded-full h-6 w-6 border-2 border-green-600 border-t-transparent" />
-                          <span className="ml-3 text-sm text-gray-500">Loading Categories...</span>
+                          <span className="ml-3 text-sm text-gray-500">Loading...</span>
                       </div>
                   ) : (
-                      // dedicated link to the main Products landing page
                       <>
                           <Link 
                               href="/products" 
@@ -334,7 +292,6 @@ export function Header() {
                           </Link>
 
                           <div className="mt-4 border-t pt-4 space-y-3">
-                              {/* Accordions for specific brands */}
                               {menuData.map((brand, index) => (
                                   <div
                                       key={brand.name}
@@ -342,7 +299,7 @@ export function Header() {
                                       style={{ animationDelay: `${index * 100}ms` }}
                                   >
                                       <Accordion type="single" collapsible>
-                                          <AccordionItem value={brand.name}>
+                                          <AccordionItem value={brand.name} className="border-b-0">
                                               <AccordionTrigger className="w-full text-left py-3 font-medium text-gray-800 hover:text-green-600">
                                                   {brand.name}
                                               </AccordionTrigger>
@@ -369,7 +326,6 @@ export function Header() {
                   )}
               </div>
               
-              {/* Static Navigation Links */}
               <div className="space-y-2 border-t pt-6">
                   {staticNavLinks.map((link, index) => (
                       <div
