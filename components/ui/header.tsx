@@ -135,7 +135,7 @@ export function Header() {
     <>
       <header className={`
           /* Positioning */
-          fixed top-0 left-0 right-0 z-50 
+          sticky top-0 left-0 right-0 z-50 
           /* Transitions */
           transition-all duration-500 ease-in-out
           /* Conditional Styling */
