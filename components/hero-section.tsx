@@ -20,25 +20,35 @@ export function HeroSection() {
     `}>
       <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] lg:min-h-[calc(100vh-96px)]">
         
-        {/* IMAGE SECTION (Top on Mobile) */}
-        <div className="relative w-full h-[40vh] lg:h-auto lg:w-1/2 bg-stone-100 overflow-hidden group">
-          <Image
-            src={heroImageUrl}
-            alt="Sassy Products Kenya"
-            fill
-            priority
-            className="transition-transform duration-1000 group-hover:scale-105 
-              object-contain p-8 
-              lg:object-cover lg:p-0"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-          />
+        <div className="relative w-full h-[60vh] lg:h-auto lg:w-1/2 flex items-center justify-center bg-[#FDFCFB] p-4 md:p-8 lg:p-12">
           
-          <div className="absolute bottom-4 left-4 z-20">
-            <div className="flex items-center gap-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
-              <Sparkles className="w-3 h-3 text-emerald-600" />
-              <span className="text-[10px] font-bold text-stone-800 uppercase tracking-tight">
-                Premium Quality
-              </span>
+          {/* THE SQUIRCLE FRAME */}
+          <div className={`
+            relative w-full h-full overflow-hidden shadow-2xl
+            /* DISTINCT SHAPE: Subtle squircle corners */
+            rounded-[3rem] md:rounded-[4rem]
+            /* Border adds sophistication */
+            border-2 border-stone-100
+            bg-stone-100 group
+          `}>
+            <Image
+              src={heroImageUrl}
+              alt="Sassy Products Kenya"
+              fill
+              priority
+              className="transition-transform duration-1000 group-hover:scale-105 
+                object-contain p-6
+                lg:object-cover lg:p-0"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
+            
+            <div className="absolute top-4 left-4 z-20">
+              <div className="flex items-center gap-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
+                <Sparkles className="w-3 h-3 text-emerald-600" />
+                <span className="text-[10px] font-bold text-stone-800 uppercase tracking-tight">
+                  Premium Quality
+                </span>
+              </div>
             </div>
           </div>
         </div>     
