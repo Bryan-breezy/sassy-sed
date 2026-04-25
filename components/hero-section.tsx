@@ -19,7 +19,7 @@ export function HeroSection() {
       pt-20 lg:pt-24 
     `}>
       <div className="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] lg:min-h-[calc(100vh-96px)]">
-        
+
         <div className="relative w-full h-[60vh] lg:h-auto lg:w-1/2 flex items-center justify-center bg-[#FDFCFB] p-4 md:p-8 lg:p-12">
           
           {/* THE SQUIRCLE FRAME */}
@@ -53,7 +53,6 @@ export function HeroSection() {
           </div>
         </div>     
     
-        {/* TEXT CONTENT SECTION (Bottom on Mobile) */}
         <div className="flex flex-col items-center justify-center text-center px-6 py-10 lg:py-0 lg:px-20 lg:w-1/2 relative">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-40 -mr-32 -mt-32" />
 
