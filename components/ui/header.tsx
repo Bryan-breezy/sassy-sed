@@ -30,31 +30,6 @@ function cn(...classes: (string | false | undefined | null)[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HeaderSpacer — exported so any page can use it
-//
-// The header bar is h-12 (48px) + py-4 top+bottom (32px) = 80px unscrolled.
-// This invisible div reserves that space so page content is never hidden behind
-// the fixed header.
-//
-// HOW TO USE:
-//
-//   Home page (app/page.tsx) — hero floats behind transparent header:
-//     <HeroSection />        ← no spacer before it; sits behind the header
-//     <HeaderSpacer />       ← NOT needed here either; hero is full-screen
-//     <NextSection />        ← hero's own height already clears the header
-//
-//   Every other page (e.g. app/about/page.tsx):
-//     <HeaderSpacer />       ← first element, pushes content below the header
-//     <AboutContent />
-//
-//   Root layout (app/layout.tsx) — do NOT put the spacer here, because the
-//   hero page needs to opt out of it. Put it at the top of each non-hero page.
-// ─────────────────────────────────────────────────────────────────────────────
-export function HeaderSpacer() {
-  return <div className="h-20" aria-hidden="true" />
-}
-
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [menuData, setMenuData]                 = useState<MenuBrand[]>([])
@@ -118,8 +93,12 @@ export function Header() {
     <>
       {/* ══════════════════════════════════════════════════════════
           FIXED HEADER BAR
+          id="site-header" is required — layout.tsx measures this
+          element's height and writes it to --header-h so that
+          <main> automatically starts below it on every page.
       ══════════════════════════════════════════════════════════ */}
       <header
+        id="site-header"
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
           scrolled
@@ -242,10 +221,8 @@ export function Header() {
           isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
       >
-        {/* Backdrop */}
         <div className="absolute inset-0 bg-stone-900/30 backdrop-blur-sm" onClick={closeMobile} />
 
-        {/* Drawer panel */}
         <div
           className={cn(
             "absolute right-0 top-0 h-full w-[82%] max-w-[360px] bg-[#F5F2ED] flex flex-col shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
@@ -269,8 +246,6 @@ export function Header() {
 
           {/* Drawer body */}
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-1">
-
-            {/* Products accordion */}
             <div className="border-b border-stone-200/60 pb-4 mb-2">
               <button
                 onClick={() => setProductsOpen(o => !o)}
@@ -315,7 +290,6 @@ export function Header() {
               </div>
             </div>
 
-            {/* Static links */}
             {staticNavLinks.map(link => (
               <Link
                 key={link.href}
