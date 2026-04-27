@@ -1,4 +1,11 @@
 import { Leaf, Shield, Heart, LucideIcon } from "lucide-react"
+import { Playfair_Display } from "next/font/google"
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+})
 
 interface WhyChooseUsItem {
   icon: LucideIcon
@@ -47,7 +54,7 @@ export default function WhyChooseUsSection({
               Our Promise
             </p>
           </div>
-          <h2 className="font-serif text-4xl sm:text-5xl font-medium text-stone-50 leading-[1.05] mb-5">
+          <h2 className={`${playfair.className} text-4xl sm:text-5xl font-medium text-stone-50 leading-[1.05] mb-5`}>
             {title}
           </h2>
           <p className="text-stone-400 text-base leading-relaxed">
@@ -58,21 +65,24 @@ export default function WhyChooseUsSection({
         {/* ── Cards ── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-stone-700/50 rounded-2xl overflow-hidden">
           {items.map((item, i) => (
-            <FeatureCard key={item.title} item={item} index={i} />
+            <FeatureCard key={item.title} item={item} index={i} playfairClass={playfair.className} />
           ))}
         </div>
 
       </div>
-
-      <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&display=swap');
-        .font-serif { font-family: 'Playfair Display', Georgia, serif; }
-      `}</style>
     </section>
   )
 }
 
-function FeatureCard({ item, index }: { item: WhyChooseUsItem; index: number }) {
+function FeatureCard({
+  item,
+  index,
+  playfairClass,
+}: {
+  item: WhyChooseUsItem
+  index: number
+  playfairClass: string
+}) {
   const Icon = item.icon
   const delays = ["0ms", "80ms", "160ms"]
 
@@ -83,17 +93,17 @@ function FeatureCard({ item, index }: { item: WhyChooseUsItem; index: number }) 
     >
       {/* Icon */}
       <div className="w-11 h-11 rounded-full border border-emerald-700/60 flex items-center justify-center group-hover:border-emerald-500 transition-colors duration-300">
-        <Icon className="w-4.5 h-4.5 text-emerald-500 w-[18px] h-[18px]" strokeWidth={1.5} />
+        <Icon className="text-emerald-500 w-[18px] h-[18px]" strokeWidth={1.5} />
       </div>
 
-      {/* Index number — editorial detail */}
+      {/* Index number */}
       <span className="text-[10px] font-bold tracking-[0.2em] text-stone-600 uppercase">
         0{index + 1}
       </span>
 
       {/* Copy */}
       <div>
-        <h3 className="font-serif text-xl font-medium text-stone-100 mb-3 leading-snug">
+        <h3 className={`${playfairClass} text-xl font-medium text-stone-100 mb-3 leading-snug`}>
           {item.title}
         </h3>
         <p className="text-stone-400 text-sm leading-relaxed">
