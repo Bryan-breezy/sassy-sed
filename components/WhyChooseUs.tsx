@@ -1,75 +1,110 @@
-import { Leaf, Shield, Heart } from "lucide-react"
-import { WhyChooseUsProps, WhyChooseUsItem } from "@/types"
+import { Leaf, Shield, Heart, LucideIcon } from "lucide-react"
 
-const defaultItems = [
-  { 
-    icon: Leaf, 
-    title: "100% Natural Ingredients", 
-    description: "Sourced with care to ensure purity and potency." 
+interface WhyChooseUsItem {
+  icon: LucideIcon
+  title: string
+  description: string
+}
+
+interface WhyChooseUsProps {
+  items?: WhyChooseUsItem[]
+  title?: string
+  description?: string
+}
+
+const defaultItems: WhyChooseUsItem[] = [
+  {
+    icon: Leaf,
+    title: "100% Natural Ingredients",
+    description: "Every ingredient is locally sourced with care to ensure purity, potency, and connection to the land.",
   },
-  { 
-    icon: Shield, 
-    title: "Dermatologically Tested", 
-    description: "Gentle and effective for all skin types." 
+  {
+    icon: Shield,
+    title: "Dermatologically Tested",
+    description: "Clinically verified to be gentle and effective across all skin types — no compromises.",
   },
-  { 
-    icon: Heart, 
-    title: "Proudly Made in Kenya", 
-    description: "Crafted with love, supporting our community." 
+  {
+    icon: Heart,
+    title: "Proudly Made in Kenya",
+    description: "Crafted with love in Nairobi, supporting local communities and celebrating Kenyan beauty.",
   },
 ]
 
-export default function WhyChooseUsSection({ 
+export default function WhyChooseUsSection({
   items = defaultItems,
   title = "Why Choose Sassy",
   description = "Our commitment to quality, nature, and your skin's health.",
-  backgroundColor = "bg-green-400",
-  textColor = "text-gray-900",
-  iconColor = "text-green-600",
-  iconBackgroundColor = "bg-green-100"
 }: WhyChooseUsProps) {
   return (
-    <section className={`py-20 px-4 ${backgroundColor}`}> 
-      <div className="container mx-auto">
-        <div className="text-center mb-16">
-          <h2 className={`text-3xl md:text-4xl font-extrabold ${textColor} mb-6`}> 
+    <section className="bg-stone-900 py-20 lg:py-28 px-5 sm:px-8">
+      <div className="mx-auto max-w-7xl">
+
+        {/* ── Header ── */}
+        <div className="max-w-xl mb-16">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="inline-block w-5 h-[1.5px] bg-emerald-500" />
+            <p className="text-[10px] font-semibold tracking-[0.22em] text-emerald-500 uppercase">
+              Our Promise
+            </p>
+          </div>
+          <h2 className="font-serif text-4xl sm:text-5xl font-medium text-stone-50 leading-[1.05] mb-5">
             {title}
           </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-stone-400 text-base leading-relaxed">
             {description}
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {items.map((item) => (
-            <FeatureCard 
-              key={item.title} 
-              item={item}
-              iconColor={iconColor}
-              iconBackgroundColor={iconBackgroundColor}
-            />
+
+        {/* ── Cards ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-stone-700/50 rounded-2xl overflow-hidden">
+          {items.map((item, i) => (
+            <FeatureCard key={item.title} item={item} index={i} />
           ))}
         </div>
+
       </div>
+
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&display=swap');
+        .font-serif { font-family: 'Playfair Display', Georgia, serif; }
+      `}</style>
     </section>
   )
 }
 
-interface FeatureCardProps {
-  item: WhyChooseUsItem
-  iconColor?: string
-  iconBackgroundColor?: string
-}
+function FeatureCard({ item, index }: { item: WhyChooseUsItem; index: number }) {
+  const Icon = item.icon
+  const delays = ["0ms", "80ms", "160ms"]
 
-function FeatureCard({ item, iconColor = "text-green-600", iconBackgroundColor = "bg-green-100" }: FeatureCardProps) {
-  const IconComponent = item.icon
-  
   return (
-    <div className="text-center p-6 bg-white rounded-lg shadow-md transition-transform duration-300 hover:scale-105">
-      <div className={`w-20 h-20 ${iconBackgroundColor} rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm`}>
-        <IconComponent className={`w-10 h-10 ${iconColor}`} />
+    <div
+      className="group bg-stone-900 hover:bg-stone-800 transition-colors duration-300 p-8 lg:p-10 flex flex-col gap-6"
+      style={{ animationDelay: delays[index] }}
+    >
+      {/* Icon */}
+      <div className="w-11 h-11 rounded-full border border-emerald-700/60 flex items-center justify-center group-hover:border-emerald-500 transition-colors duration-300">
+        <Icon className="w-4.5 h-4.5 text-emerald-500 w-[18px] h-[18px]" strokeWidth={1.5} />
       </div>
-      <h3 className="text-xl font-bold mb-4 text-gray-900">{item.title}</h3>
-      <p className="text-gray-600">{item.description}</p>
+
+      {/* Index number — editorial detail */}
+      <span className="text-[10px] font-bold tracking-[0.2em] text-stone-600 uppercase">
+        0{index + 1}
+      </span>
+
+      {/* Copy */}
+      <div>
+        <h3 className="font-serif text-xl font-medium text-stone-100 mb-3 leading-snug">
+          {item.title}
+        </h3>
+        <p className="text-stone-400 text-sm leading-relaxed">
+          {item.description}
+        </p>
+      </div>
+
+      {/* Bottom accent line */}
+      <div className="mt-auto pt-6 border-t border-stone-800 group-hover:border-emerald-900 transition-colors duration-300">
+        <span className="inline-block w-0 group-hover:w-8 h-[1.5px] bg-emerald-600 transition-all duration-500 ease-out" />
+      </div>
     </div>
   )
 }
