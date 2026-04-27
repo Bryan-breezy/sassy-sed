@@ -5,8 +5,6 @@ import { Download } from "lucide-react"
 import { supabase } from '@/lib/supabase-client'
 
 /**
- * Responsive breakpoint audit & fixes:
- *
  * MOBILE  (<640px)
  *  - Stack: image on top, copy below. Single-column layout.
  *  - Image: fixed height 56vw (min 260px) so it never collapses.
@@ -33,16 +31,6 @@ import { supabase } from '@/lib/supabase-client'
  *  - xl: copy padding increases to px-20.
  *  - 2xl: copy padding increases to px-28.
  *  - Headline clamp ceiling bumped to 5.5rem — won't over-scale.
- *
- * FIXED BUGS:
- *  1. `min-h-screen` on the grid caused double scroll on mobile — replaced with
- *     auto height for mobile, min-h-screen only on desktop.
- *  2. `h-[52vw]` on image wrapper had no upper bound; capped with max-h-[480px] on tablet.
- *  3. Vignette gradient used fixed px widths instead of percentage — replaced with
- *     a full inset gradient that works at all widths.
- *  4. orb sizes were fixed at 520px / 380px — caused overflow on mobile. Made responsive.
- *  5. CTAs were `flex-wrap` but with fixed `px-7 py-4` — on very small screens the
- *     buttons were too narrow. Added `w-full sm:w-auto` + `justify-center` on mobile.
  */
 
 export function HeroSection() {
@@ -62,8 +50,7 @@ export function HeroSection() {
         <div className="grain" />
       </div>
 
-      {/* ─── Layout: stack on mobile/tablet, side-by-side on desktop ─── */}
-      <div className="relative z-10 flex flex-col lg:grid lg:grid-cols-2 lg:min-h-screen">
+      <div className="relative z-10 flex flex-col lg:grid lg:grid-cols-2 lg:min-h-screen" style={{ paddingTop: 'var(--header-h, 60px)' }}>
 
         {/* ══ IMAGE — top on mobile, right column on desktop ══ */}
         <div className="relative order-1 lg:order-2 w-full h-[56vw] min-h-[260px] max-h-[480px] sm:h-[60vw] sm:max-h-[520px] lg:h-auto lg:max-h-none">
