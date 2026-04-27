@@ -91,23 +91,17 @@ export function Header() {
 
   return (
     <>
-      {/* ══════════════════════════════════════════════════════════
-          FIXED HEADER BAR
-          id="site-header" is required — layout.tsx measures this
-          element's height and writes it to --header-h so that
-          <main> automatically starts below it on every page.
-      ══════════════════════════════════════════════════════════ */}
       <header
         id="site-header"
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "sticky top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
           scrolled
-            ? "bg-[#F5F2ED]/92 backdrop-blur-md border-b border-stone-200/60 py-2 shadow-[0_1px_24px_rgba(0,0,0,0.06)]"
-            : "bg-transparent py-4"
+            ? "bg-[#F5F2ED]/95 backdrop-blur-md border-b border-stone-200/60 py-1.5 shadow-[0_1px_16px_rgba(0,0,0,0.05)]"
+            : "bg-[#F5F2ED] py-2.5"
         )}
       >
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="flex h-12 items-center">
+          <div className="flex h-10 items-center">
 
             {/* Logo */}
             <div className="flex-1">
@@ -115,19 +109,19 @@ export function Header() {
                 <Image
                   src={LOGO_URL}
                   alt="Sassy Products Kenya"
-                  width={110} height={40}
-                  className="h-7 w-auto"
+                  width={90} height={32}
+                  className="h-6 w-auto"
                   priority
                 />
               </Link>
             </div>
 
             {/* Desktop nav */}
-            <nav className="hidden lg:flex items-center gap-1">
+            <nav className="hidden lg:flex items-center gap-0.5">
               <NavigationMenu>
                 <NavigationMenuList>
                   <NavigationMenuItem>
-                    <NavigationMenuTrigger className="h-auto bg-transparent px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-600 hover:text-emerald-700 data-[state=open]:text-emerald-700 transition-colors duration-200">
+                    <NavigationMenuTrigger className="h-auto bg-transparent px-2.5 py-1 text-[11px] font-medium tracking-wide text-stone-600 hover:text-emerald-700 data-[state=open]:text-emerald-700 transition-colors duration-200">
                       Products
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
@@ -188,7 +182,7 @@ export function Header() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] transition-colors duration-200",
+                    "px-2.5 py-1 text-[11px] font-medium tracking-wide transition-colors duration-200",
                     pathname === link.href ? "text-emerald-700" : "text-stone-600 hover:text-emerald-700"
                   )}
                 >
@@ -202,9 +196,9 @@ export function Header() {
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
                 aria-label="Open menu"
-                className="flex items-center justify-center w-9 h-9 rounded-full border border-stone-200 bg-white/70 backdrop-blur-sm text-stone-700 hover:border-emerald-300 hover:text-emerald-700 transition-colors duration-200"
+                className="flex items-center justify-center w-8 h-8 rounded-full border border-stone-200 bg-white/70 backdrop-blur-sm text-stone-700 hover:border-emerald-300 hover:text-emerald-700 transition-colors duration-200"
               >
-                <Menu className="w-4 h-4" />
+                <Menu className="w-3.5 h-3.5" />
               </button>
             </div>
 
