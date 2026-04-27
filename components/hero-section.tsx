@@ -4,35 +4,6 @@ import Image from "next/image"
 import { Download } from "lucide-react"
 import { supabase } from '@/lib/supabase-client'
 
-/**
- * MOBILE  (<640px)
- *  - Stack: image on top, copy below. Single-column layout.
- *  - Image: fixed height 56vw (min 260px) so it never collapses.
- *  - Headline: clamp(2rem, 8vw, 3rem) — readable on 320px screens.
- *  - CTAs: full-width stacked buttons, easy tap targets (min 48px height).
- *  - Stats: justified with flex-1 so they spread evenly, no overflow.
- *  - Padding: px-5 so content never touches viewport edges.
- *  - Badge: smaller padding, repositioned to top-left corner of image.
- *  - Orbs: scaled down (200px) — oversized orbs caused horizontal overflow on narrow screens.
- *
- * TABLET  (640px – 1023px)
- *  - Still single-column stacked. Image taller (60vw, min 320px).
- *  - Headline scales up via clamp. CTAs side-by-side (flex-row).
- *  - Padding increases to px-8 sm:px-12.
- *
- * DESKTOP (≥1024px)
- *  - Side-by-side 50/50 grid. Image panel takes full column height.
- *  - Image panel gets the left-rounded border-radius treatment.
- *  - Copy column left-aligned (not centered), generous horizontal padding.
- *  - CTAs row again (they were always flex-wrap so safe).
- *  - Stats row unchanged.
- *
- * WIDE  (≥1280px / ≥1536px)
- *  - xl: copy padding increases to px-20.
- *  - 2xl: copy padding increases to px-28.
- *  - Headline clamp ceiling bumped to 5.5rem — won't over-scale.
- */
-
 export function HeroSection() {
   const { data: heroImageData } = supabase.storage
     .from("uploads")
@@ -50,7 +21,7 @@ export function HeroSection() {
         <div className="grain" />
       </div>
 
-      <div className="relative z-10 flex flex-col lg:grid lg:grid-cols-2 lg:min-h-screen" style={{ paddingTop: 'var(--header-h, 60px)' }}>
+      <div className="relative z-10 flex flex-col lg:grid lg:grid-cols-2 lg:min-h-screen">
 
         {/* ══ IMAGE — top on mobile, right column on desktop ══ */}
         <div className="relative order-1 lg:order-2 w-full h-[56vw] min-h-[260px] max-h-[480px] sm:h-[60vw] sm:max-h-[520px] lg:h-auto lg:max-h-none">
