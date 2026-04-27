@@ -1,5 +1,11 @@
+// app/layout.tsx
+//
+// With a sticky header, the header stays in document flow so every page
+// automatically starts below it. No padding-top, no CSS variables,
+// no PageOffset component, no ResizeObserver — none of it needed.
+
 import type { Metadata } from "next"
-import { Header } from "@/components/ui/header"
+import { Header } from "@/components/header"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -10,31 +16,6 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                function sync() {
-                  var el = document.getElementById('site-header');
-                  if (el) document.documentElement.style.setProperty('--header-h', el.offsetHeight + 'px');
-                }
-                document.addEventListener('DOMContentLoaded', function() {
-                  sync();
-                  var el = document.getElementById('site-header');
-                  if (el) new ResizeObserver(sync).observe(el);
-                });
-              })();
-            `,
-          }}
-        />
-        <style dangerouslySetInnerHTML={{
-          __html: `
-            /* Fallback: h-10 (40px) + py-2.5 top & bottom (20px) = 60px */
-            :root { --header-h: 60px; }
-          `
-        }} />
-      </head>
       <body className="bg-[#F5F2ED] antialiased">
         <Header />
         <main>
