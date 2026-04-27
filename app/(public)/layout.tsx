@@ -1,22 +1,21 @@
+import type { Metadata } from "next"
 import { Header } from "@/components/ui/header"
-import { Footer } from "@/components/ui/footer"
-import MobileBottomNav from '@/components/MobileBottomNav'
+import "./globals.css"
 
-export default function PublicLayout({
-children,
-}: {
-  children: React.ReactNode;
-}) {
+export const metadata: Metadata = {
+  title: "Sassy Products Kenya",
+  description: "Natural and Skin-Safe Cosmetics. Proudly Kenyan.",
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      <Header />
-      
-      <main>
-        {children}
-        < MobileBottomNav />
-      </main>
-      
-      <Footer />
-    </>
+    <html lang="en">
+      <body className="bg-[#F5F2ED] antialiased">
+        <Header />
+        <main>
+          {children}
+        </main>
+      </body>
+    </html>
   )
 }
