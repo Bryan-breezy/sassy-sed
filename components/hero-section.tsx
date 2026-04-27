@@ -101,7 +101,7 @@ export function HeroSection() {
               Download Catalogue
             </a>
             <a
-              href="#products"
+              href="/products"
               className="flex items-center justify-center gap-2.5 w-full sm:w-auto px-7 py-3.5 sm:py-4 rounded-full text-sm font-semibold tracking-wide text-stone-700 border border-stone-200 hover:border-emerald-300 hover:text-emerald-800 transition-colors duration-300 min-h-[48px]"
             >
               View Products
