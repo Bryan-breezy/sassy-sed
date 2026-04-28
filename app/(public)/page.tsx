@@ -18,13 +18,13 @@ export default async function HomePage() {
        <LatestProductsSection />
 
         {/* Featured Products */}
-        <FeaturedProductsSection />       
-
-        {/* Why Choose Us */}
-         <WhyChooseUs />
-
+        <FeaturedProductsSection />    
+        
         {/* Brands Section */}
         <OurBrands/>
+        
+        {/* Why Choose Us */}
+         <WhyChooseUs />
       </main>
     </div>
   )
