@@ -78,7 +78,7 @@ export function HeroSection() {
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"
                 style={{ boxShadow: '0 0 0 3px rgba(5,150,105,0.18)', animation: 'pulse 2.4s ease-in-out infinite' }}
               />
-              <span className="text-[9px] font-bold text-stone-800 uppercase tracking-tight">Premium Quality</span>
+
             </div>
           </div>
         </div>
