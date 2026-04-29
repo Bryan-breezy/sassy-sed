@@ -57,12 +57,6 @@ function CategoryCard({
             }`}
             onLoad={() => setIsLoaded(true)}
           />
-          <div className="absolute top-4 right-4">
-            <div className="bg-white/80 backdrop-blur-md px-3 py-1 rounded-full border border-white shadow-sm flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3 text-emerald-600" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-600">{category.productCount} Items</span>
-            </div>
-          </div>
         </div>
 
         <CardHeader className="p-8 space-y-4 flex-1">
