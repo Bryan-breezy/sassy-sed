@@ -91,6 +91,12 @@ export function Header() {
 
   return (
     <>
+      {/* ══════════════════════════════════════════════════════════
+          FIXED HEADER BAR
+          id="site-header" is required — layout.tsx measures this
+          element's height and writes it to --header-h so that
+          <main> automatically starts below it on every page.
+      ══════════════════════════════════════════════════════════ */}
       <header
         id="site-header"
         className={cn(
@@ -116,23 +122,26 @@ export function Header() {
               </Link>
             </div>
 
-            {/* Desktop nav */}
-            <nav className="hidden lg:flex items-center gap-0.5">
+            {/* Desktop nav — centered between logo and hamburger slot */}
+            <nav className="hidden lg:flex flex-1 items-center justify-center">
               <NavigationMenu>
-                <NavigationMenuList>
+                <NavigationMenuList className="flex items-center gap-0.5">
+
+                  {/* Products mega-menu */}
                   <NavigationMenuItem>
                     <NavigationMenuTrigger className="h-auto bg-transparent px-2.5 py-1 text-[11px] font-medium tracking-wide text-stone-600 hover:text-emerald-700 data-[state=open]:text-emerald-700 transition-colors duration-200">
                       Products
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <div className="w-[680px] p-6 bg-[#FDFCFB] rounded-2xl shadow-2xl shadow-stone-900/10 border border-stone-100">
-                        <div className="flex items-center gap-3 mb-5 pb-4 border-b border-stone-100">
+                      {/* Dropdown capped at 480px — fits 2 cols cleanly for 3 brands */}
+                      <div className="w-[480px] p-5 bg-[#FDFCFB] rounded-2xl shadow-2xl shadow-stone-900/10 border border-stone-100">
+                        <div className="flex items-center gap-3 mb-4 pb-3 border-b border-stone-100">
                           <span className="inline-block w-4 h-[1.5px] bg-emerald-600" />
                           <p className="text-[9px] font-bold tracking-[0.24em] text-emerald-600 uppercase">Our Collection</p>
                         </div>
                         {isLoading ? (
-                          <div className="grid grid-cols-3 gap-4">
-                            {[...Array(6)].map((_, i) => (
+                          <div className="grid grid-cols-2 gap-4">
+                            {[...Array(4)].map((_, i) => (
                               <div key={i} className="space-y-2">
                                 <div className="h-2.5 w-16 bg-stone-100 rounded animate-pulse" />
                                 <div className="h-2 w-24 bg-stone-100 rounded animate-pulse" />
@@ -141,10 +150,10 @@ export function Header() {
                             ))}
                           </div>
                         ) : (
-                          <div className="grid grid-cols-3 gap-x-8 gap-y-5">
+                          <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                             {menuData.map(brand => (
                               <div key={brand.name}>
-                                <h3 className="mb-2.5 text-[9px] font-black uppercase tracking-[0.18em] text-emerald-700">
+                                <h3 className="mb-2 text-[9px] font-black uppercase tracking-[0.18em] text-emerald-700">
                                   {brand.name}
                                 </h3>
                                 <ul className="space-y-1.5">
@@ -166,7 +175,7 @@ export function Header() {
                             ))}
                           </div>
                         )}
-                        <div className="mt-5 pt-4 border-t border-stone-100">
+                        <div className="mt-4 pt-3 border-t border-stone-100">
                           <Link href="/products" className="text-[10px] font-semibold tracking-[0.16em] uppercase text-stone-400 hover:text-emerald-600 transition-colors duration-200">
                             View all products →
                           </Link>
@@ -174,25 +183,28 @@ export function Header() {
                       </div>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
+
+                  {/* Static nav links inside the same NavigationMenuList */}
+                  {staticNavLinks.map(link => (
+                    <NavigationMenuItem key={link.href}>
+                      <Link
+                        href={link.href}
+                        className={cn(
+                          "block px-2.5 py-1 text-[11px] font-medium tracking-wide transition-colors duration-200",
+                          pathname === link.href ? "text-emerald-700" : "text-stone-600 hover:text-emerald-700"
+                        )}
+                      >
+                        {link.label}
+                      </Link>
+                    </NavigationMenuItem>
+                  ))}
+
                 </NavigationMenuList>
               </NavigationMenu>
-
-              {staticNavLinks.map(link => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    "px-2.5 py-1 text-[11px] font-medium tracking-wide transition-colors duration-200",
-                    pathname === link.href ? "text-emerald-700" : "text-stone-600 hover:text-emerald-700"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
             </nav>
 
-            {/* Mobile hamburger */}
-            <div className="flex-1 flex justify-end lg:hidden">
+            {/* Mobile hamburger — right edge */}
+            <div className="flex justify-end lg:hidden">
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
                 aria-label="Open menu"
