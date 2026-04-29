@@ -5,7 +5,6 @@ import { Download } from "lucide-react"
 import { supabase } from '@/lib/supabase-client'
 import { Playfair_Display, DM_Sans } from 'next/font/google'
 
-// ── Fonts via next/font — reliable on all networks, self-hosted at build time ──
 const playfair = Playfair_Display({
   subsets: ['latin'],
   weight: ['400', '500'],
@@ -31,60 +30,59 @@ export function HeroSection() {
 
       {/* ── Ambient orbs ── */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-        <div className="absolute rounded-full opacity-30"
-          style={{
-            width: 'clamp(160px, 38vw, 480px)',
-            height: 'clamp(160px, 38vw, 480px)',
-            background: 'radial-gradient(circle, #6ee7b7, transparent 70%)',
-            filter: 'blur(55px)',
-            top: '-40px', right: '0',
-            animation: 'drift 12s ease-in-out infinite alternate',
-          }}
-        />
-        <div className="absolute rounded-full opacity-25"
-          style={{
-            width: 'clamp(120px, 28vw, 340px)',
-            height: 'clamp(120px, 28vw, 340px)',
-            background: 'radial-gradient(circle, #d6c9b3, transparent 70%)',
-            filter: 'blur(55px)',
-            bottom: '-30px', left: '0',
-            animation: 'drift 15s ease-in-out infinite alternate-reverse',
-          }}
-        />
+        <div className="absolute rounded-full opacity-30" style={{
+          width: 'clamp(160px, 38vw, 480px)', height: 'clamp(160px, 38vw, 480px)',
+          background: 'radial-gradient(circle, #6ee7b7, transparent 70%)',
+          filter: 'blur(55px)', top: '-40px', right: '0',
+          animation: 'drift 12s ease-in-out infinite alternate',
+        }} />
+        <div className="absolute rounded-full opacity-25" style={{
+          width: 'clamp(120px, 28vw, 340px)', height: 'clamp(120px, 28vw, 340px)',
+          background: 'radial-gradient(circle, #d6c9b3, transparent 70%)',
+          filter: 'blur(55px)', bottom: '-30px', left: '0',
+          animation: 'drift 15s ease-in-out infinite alternate-reverse',
+        }} />
       </div>
 
-      {/* ── Layout grid ── */}
+      {/* ════════════════════════════════════════════════════════
+          LAYOUT
+          Mobile/tablet (<1024px): single column, image on top
+          Desktop (≥1024px):       two columns, copy left / image right
+
+          KEY FIX: image height is controlled ONLY by CSS classes,
+          never by inline style, so Tailwind breakpoint overrides work.
+          Mobile  → h-[clamp(280px,65vw,480px)]  via CSS var in globals
+          Desktop → self-stretching inside the grid row (no fixed height)
+      ════════════════════════════════════════════════════════ */}
       <div className="relative z-10 flex flex-col lg:grid lg:grid-cols-2 lg:min-h-screen">
 
-        {/* ══ IMAGE — full width on mobile, right column on desktop ══ */}
-        <div className="relative order-1 lg:order-2 w-full lg:h-auto"
-          style={{ height: 'clamp(280px, 65vw, 520px)' }}
-        >
-          {/* Panel */}
+        {/* ══ IMAGE ══ */}
+        {/*
+          On mobile/tablet: explicit height class so the image doesn't collapse.
+          On desktop (lg+): height is auto — the column stretches to match the
+          copy column naturally inside the CSS grid row.
+          We use a CSS custom property set in globals.css so we avoid
+          inline style specificity conflicts entirely.
+        */}
+        <div className="relative order-1 lg:order-2 w-full hero-image-col">
           <div className="absolute inset-0 overflow-hidden lg:rounded-[2.5rem_0_0_2.5rem]">
             <Image
               src={heroImageUrl}
               alt="Sassy Products Kenya — Natural Cosmetics"
               fill
               priority
-              className="object-cover transition-transform duration-[1.4s] ease-out hover:scale-[1.03]"
+              className="object-cover object-top transition-transform duration-[1.4s] ease-out hover:scale-[1.03]"
               sizes="(max-width: 1024px) 100vw, 55vw"
+              // 400 error fallback — if Supabase path is wrong, show placeholder gracefully
+              onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg' }}
             />
-            {/* Gradient fade — bottom on mobile, left on desktop */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#F5F2ED] via-[#F5F2ED]/20 to-transparent lg:bg-gradient-to-r lg:from-[#F5F2ED] lg:via-[#F5F2ED]/10 lg:to-transparent" />
-
-            {/* Badge */}
-            <div className="absolute top-3 left-3 sm:top-5 sm:left-5 z-20 flex items-center gap-1.5 bg-white/88 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md border border-white/90">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"
-                style={{ boxShadow: '0 0 0 3px rgba(5,150,105,0.18)', animation: 'pulse 2.4s ease-in-out infinite' }}
-              />
-
-            </div>
+            {/* Gradient: bottom-fade on mobile, left-fade on desktop */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#F5F2ED] via-[#F5F2ED]/15 to-transparent lg:bg-gradient-to-r lg:from-[#F5F2ED] lg:via-[#F5F2ED]/10 lg:to-transparent" />
           </div>
         </div>
 
-        {/* ══ COPY — below image on mobile, left column on desktop ══ */}
-        <div className="order-2 lg:order-1 flex flex-col justify-center px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 pt-7 pb-12 sm:pt-10 sm:pb-16 lg:py-0 text-center lg:text-left">
+        {/* ══ COPY ══ */}
+        <div className="order-2 lg:order-1 flex flex-col justify-center px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 pt-8 pb-14 sm:pt-10 sm:pb-16 lg:py-20 text-center lg:text-left">
 
           {/* Eyebrow */}
           <div className="flex items-center justify-center lg:justify-start gap-3 mb-5">
@@ -94,14 +92,11 @@ export function HeroSection() {
             </p>
           </div>
 
-          {/* Headline — clamp floor raised for mobile readability */}
-          <h1
-            className={`${playfair.className} leading-[1.05] text-stone-900 mb-5`}
-            style={{ fontSize: 'clamp(2.6rem, 7vw, 5.5rem)' }}
-          >
+          {/* Headline */}
+          <h1 className={`${playfair.className} hero-headline leading-[1.05] text-stone-900 mb-5`}>
             Natural.<br />
-            <em className="text-emerald-800 not-italic font-normal">Skin-Safe.</em><br />
-            <span className="text-stone-400 font-normal">Cosmetics.</span>
+            <em className="text-emerald-800 not-italic">Skin-Safe.</em><br />
+            <span className="text-stone-400">Cosmetics.</span>
           </h1>
 
           {/* Body */}
@@ -115,14 +110,14 @@ export function HeroSection() {
               href="https://sassyproducts.co.ke/wp-content/uploads/2025/05/WIP_Sedoso-Catalog-09092024_compressed.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center justify-center gap-2.5 w-full sm:w-auto px-7 py-3.5 rounded-full text-sm font-semibold tracking-wide text-white bg-stone-900 hover:bg-emerald-900 transition-colors duration-300 shadow-lg min-h-[48px]"
+              className="group flex items-center justify-center gap-2.5 w-full sm:w-auto px-7 py-3.5 rounded-full text-sm font-semibold text-white bg-stone-900 hover:bg-emerald-900 transition-colors duration-300 shadow-lg min-h-[48px]"
             >
               <Download className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               Download Catalogue
             </a>
             <a
               href="#products"
-              className="flex items-center justify-center w-full sm:w-auto px-7 py-3.5 rounded-full text-sm font-semibold tracking-wide text-stone-700 border border-stone-200 hover:border-emerald-300 hover:text-emerald-800 transition-colors duration-300 min-h-[48px]"
+              className="flex items-center justify-center w-full sm:w-auto px-7 py-3.5 rounded-full text-sm font-semibold text-stone-700 border border-stone-200 hover:border-emerald-300 hover:text-emerald-800 transition-colors duration-300 min-h-[48px]"
             >
               View Products
             </a>
@@ -131,9 +126,9 @@ export function HeroSection() {
           {/* Stats */}
           <dl className="flex items-center justify-center lg:justify-start">
             {[
-              { value: "100%", label: "Natural"  },
-              { value: "Local", label: "Sourced"  },
-              { value: "Skin",  label: "Safe"     },
+              { value: "100%", label: "Natural" },
+              { value: "Local", label: "Sourced" },
+              { value: "Skin",  label: "Safe"    },
             ].map((s, i) => (
               <div key={s.label} className="flex items-center flex-1 sm:flex-none sm:gap-8">
                 {i > 0 && <div className="w-px h-5 bg-stone-200 shrink-0 mx-auto sm:mx-0" />}
@@ -152,15 +147,36 @@ export function HeroSection() {
 
       </div>
 
-      {/* ── Keyframe animations injected once, no styled-jsx needed ── */}
       <style>{`
+        /* Image column height:
+           Mobile/tablet — explicit height so image doesn't collapse to 0.
+           Desktop (lg)  — no height; the CSS grid row stretches it automatically.
+           Using a class here (not inline style) so lg: Tailwind override works. */
+        .hero-image-col {
+          height: clamp(280px, 65vw, 480px);
+        }
+        @media (min-width: 1024px) {
+          .hero-image-col {
+            height: auto;   /* grid row determines height */
+          }
+        }
+
+        /* Fluid headline — 2.6rem floor keeps it readable on 320px phones */
+        .hero-headline {
+          font-size: clamp(2.6rem, 5.5vw, 5.5rem);
+        }
+
         @keyframes drift {
           from { transform: translate(0,0) scale(1); }
           to   { transform: translate(14px,20px) scale(1.05); }
         }
-        @keyframes pulse {
+        .badge-pulse {
+          box-shadow: 0 0 0 3px rgba(5,150,105,0.18);
+          animation: badge-pulse-anim 2.4s ease-in-out infinite;
+        }
+        @keyframes badge-pulse-anim {
           0%,100% { box-shadow: 0 0 0 3px rgba(5,150,105,0.18); }
-          50%      { box-shadow: 0 0 0 6px rgba(5,150,105,0.08); }
+          50%     { box-shadow: 0 0 0 6px rgba(5,150,105,0.08); }
         }
         @media (prefers-reduced-motion: reduce) {
           * { animation: none !important; transition-duration: 0.01ms !important; }
