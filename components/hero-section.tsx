@@ -8,14 +8,14 @@ import { Playfair_Display, DM_Sans } from 'next/font/google'
 // ── Fonts via next/font — reliable on all networks, self-hosted at build time ──
 const playfair = Playfair_Display({
   subsets: ['latin'],
-  weight: ['300', '400', '500'],
+  weight: ['400', '500'],
   style: ['normal', 'italic'],
   display: 'swap',
 })
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
+  weight: ['400', '500', '600'],
   display: 'swap',
 })
 
@@ -100,8 +100,8 @@ export function HeroSection() {
             style={{ fontSize: 'clamp(2.6rem, 7vw, 5.5rem)' }}
           >
             Natural.<br />
-            <em className="text-emerald-800 not-italic font-light">Skin-Safe.</em><br />
-            <span className="text-stone-400 font-light">Cosmetics.</span>
+            <em className="text-emerald-800 not-italic font-normal">Skin-Safe.</em><br />
+            <span className="text-stone-400 font-normal">Cosmetics.</span>
           </h1>
 
           {/* Body */}
