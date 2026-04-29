@@ -152,12 +152,6 @@ export default function ProductDetailPage({ params }: Props) {
               onLoad={() => setIsMainImageLoaded(true)}
               priority
             />
-            <div className="absolute bottom-8 left-8 right-8 flex justify-center">
-              <div className="bg-white/80 backdrop-blur-md px-6 py-3 rounded-2xl shadow-lg border border-white flex items-center gap-3">
-                <Sparkles className="w-5 h-5 text-emerald-600" />
-                <span className="text-sm font-medium text-stone-800">100% Natural Ingredients</span>
-              </div>
-            </div>
           </div>
 
           {/* Info Section */}
@@ -214,22 +208,6 @@ export default function ProductDetailPage({ params }: Props) {
                     >
                       {size}
                     </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {product.concerns && product.concerns.length > 0 && (
-              <div className="space-y-4">
-                <h2 className="text-sm font-bold uppercase tracking-widest text-stone-900">Key Benefits</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {product.concerns.map((concern) => (
-                    <div key={concern} className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-stone-50 shadow-sm">
-                      <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      </div>
-                      <span className="text-stone-700 font-medium">{concern}</span>
-                    </div>
                   ))}
                 </div>
               </div>
