@@ -19,6 +19,7 @@ const dmSans = DM_Sans({
 })
 
 export function HeroSection() {
+  // Fetch image from supabase
   const { data: heroImageData } = supabase.storage
     .from("uploads")
     .getPublicUrl("1757065218649-whatsapp_image_2025_09_05_at_12.16.08_pm.jpeg")
@@ -26,6 +27,7 @@ export function HeroSection() {
   const heroImageUrl = heroImageData?.publicUrl || "/placeholder.svg"
 
   return (
+    // Background color off-white
     <section className={`${dmSans.className} relative w-full bg-[#F5F2ED] overflow-hidden`}>
 
       {/* ── Ambient orbs ── */}
@@ -48,22 +50,10 @@ export function HeroSection() {
           LAYOUT
           Mobile/tablet (<1024px): single column, image on top
           Desktop (≥1024px):       two columns, copy left / image right
-
-          KEY FIX: image height is controlled ONLY by CSS classes,
-          never by inline style, so Tailwind breakpoint overrides work.
-          Mobile  → h-[clamp(280px,65vw,480px)]  via CSS var in globals
-          Desktop → self-stretching inside the grid row (no fixed height)
       ════════════════════════════════════════════════════════ */}
       <div className="relative z-10 flex flex-col lg:grid lg:grid-cols-2 lg:min-h-screen">
 
         {/* ══ IMAGE ══ */}
-        {/*
-          On mobile/tablet: explicit height class so the image doesn't collapse.
-          On desktop (lg+): height is auto — the column stretches to match the
-          copy column naturally inside the CSS grid row.
-          We use a CSS custom property set in globals.css so we avoid
-          inline style specificity conflicts entirely.
-        */}
         <div className="relative order-1 lg:order-2 w-full hero-image-col">
           <div className="absolute inset-0 overflow-hidden lg:rounded-[2.5rem_0_0_2.5rem]">
             <Image
@@ -73,11 +63,11 @@ export function HeroSection() {
               priority
               className="object-cover object-top transition-transform duration-[1.4s] ease-out hover:scale-[1.03]"
               sizes="(max-width: 1024px) 100vw, 55vw"
-              // 400 error fallback — if Supabase path is wrong, show placeholder gracefully
+              // 400 error fallback — if Supabase path is wrong, show placeholder
               onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg' }}
             />
-            {/* Gradient: bottom-fade on mobile, left-fade on desktop */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#F5F2ED] via-[#F5F2ED]/15 to-transparent lg:bg-gradient-to-r lg:from-[#F5F2ED] lg:via-[#F5F2ED]/10 lg:to-transparent" />
+            {/* Gradient: mobile = none, desktop = left-fade blending into copy column */}
+            <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-[#F5F2ED] via-[#F5F2ED]/10 to-transparent" />
           </div>
         </div>
 
